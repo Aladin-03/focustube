@@ -7,7 +7,7 @@ Status: update this table as milestones finish.
 
 | # | Milestone | Status |
 | --- | --- | --- |
-| 1 | Foundation | Not started |
+| 1 | Foundation | Done |
 | 2 | Personas | Not started |
 | 3 | Classic search and player | Not started |
 | 4 | Library | Not started |
@@ -18,8 +18,8 @@ Status: update this table as milestones finish.
 
 ## 1. Foundation
 **Scope:** Gradle project (version catalog, Kotlin, Compose, Hilt, KSP, Spotless/ktlint), app id
-`dev.aladins.focustube`, the full package structure from `ARCHITECTURE.md` (empty packages get a
-short `package-info`-style README or a placeholder file only where needed), design-system theme
+`dev.aladins.focustube`, the package structure from `ARCHITECTURE.md` (packages are created when
+first used), design-system theme
 (colours light/dark, bundled fonts, type, shapes, spacing), the core shared components that the
 empty screens need (`FtTopBar`, `FtBottomBar`/rail, `EmptyState`, buttons), navigation with the
 four tabs and placeholder screens, the Settings route, `.gitignore` with all secrets excluded,

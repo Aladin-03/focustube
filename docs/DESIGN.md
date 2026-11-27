@@ -76,6 +76,8 @@ Build each once, use everywhere.
 | `OptionsSheet` | Bottom sheet for pick options and add-to-personas checklist. |
 
 Icons: simple 2 dp stroke line icons (Material Symbols Rounded outlined is fine). No emoji in UI.
+Top-bar action icons (Settings gear, Back arrow) use ink (`onBackground`), not muted.
+Inactive tab icons use muted.
 
 ## Screens
 

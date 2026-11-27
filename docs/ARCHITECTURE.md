@@ -17,19 +17,24 @@
 
 Single Gradle app module for v1, with strict packages. Base package `dev.aladins.focustube`.
 
+This is the target structure. A package is created when the first file that belongs in it is
+written; there are no empty or placeholder packages.
+
 ```
 app/src/main/java/dev/aladins/focustube/
 ├── FocusTubeApp.kt              # @HiltAndroidApp Application; WorkManager setup
 ├── MainActivity.kt              # Single activity, sets FocusTubeTheme + AppNavHost
 │
 ├── navigation/                  # How screens connect
-│   ├── AppNavHost.kt            # NavHost with every route
-│   ├── Routes.kt                # Type-safe route definitions
+│   ├── AppScaffold.kt           # App shell: top bar, bottom bar / rail, centred content, NavHost
+│   ├── AppNavHost.kt            # NavHost with every route; navigateToTab()
+│   ├── Route.kt                 # Type-safe routes: sealed interface Route { Picks, Settings... }
 │   └── TopLevelDestination.kt   # The 4 tabs (icon, label, route)
 │
 ├── core/                        # Shared, feature-agnostic building blocks
 │   ├── designsystem/
-│   │   ├── theme/               # Color.kt, Type.kt, Shape.kt, Spacing.kt, Theme.kt
+│   │   ├── theme/               # Color.kt, Type.kt, Shape.kt, FocusTubeSpacing.kt, Theme.kt,
+│   │   │                        #   FocusTubeColors.kt, FocusTubeTypography.kt
 │   │   ├── components/          # FtTopBar, FtBottomBar, PickCard, VideoRow, LevelMeter, Tag...
 │   │   └── icons/               # FocusTubeIcons (one object listing every icon)
 │   ├── common/
@@ -58,7 +63,7 @@ app/src/main/java/dev/aladins/focustube/
 │   ├── settings/                # SettingsStore (encrypted DataStore): OpenAI key, default regions
 │   └── mapper/                  # Entity <-> domain, DTO <-> domain. Each mapping written once.
 │
-├── di/                          # Hilt modules only
+├── di/                          # Hilt modules only, each added with the first thing it provides
 │   ├── DatabaseModule.kt
 │   ├── NetworkModule.kt
 │   ├── RepositoryModule.kt      # Binds interfaces to implementations
@@ -79,13 +84,21 @@ app/src/main/java/dev/aladins/focustube/
     └── settings/                # 17
 ```
 
+Route naming: navigation destinations are `Route.X` objects in `navigation/Route.kt`
+(`Route.Picks`, `Route.Player(videoId)`). The `XRoute` composables below are the per-screen entry
+points. The two never share a name.
+
+Layout tokens: `FocusTubeSpacing.screenHorizontal` (16 dp) is every screen's side padding, and
+`FocusTubeSpacing.contentMaxWidth` (600 dp) caps content width on tablets, where it is centred
+next to the navigation rail. The rail replaces the bottom bar from medium width (600 dp) up.
+
 Inside each feature package:
 
 ```
 feature/picks/
 ├── PicksScreen.kt          # Stateless composable: takes UiState + callbacks
 ├── PicksRoute.kt           # Gets the ViewModel, collects state, calls PicksScreen
-├── PicksViewModel.kt       # Holds state, calls use cases / repositories
+├── PicksViewModel.kt       # Holds state, calls use cases / repositories (added once the screen has state)
 ├── PicksUiState.kt         # Data class (or sealed interface) for everything the screen shows
 └── components/             # Composables used ONLY by this feature.
                             # Used by a second feature? Move it to core/designsystem/components.
@@ -97,7 +110,7 @@ Tests mirror the same packages under `app/src/test/` (unit) and `app/src/android
 
 | I'm writing... | It goes in |
 | --- | --- |
-| A colour, font, size, shape | `core/designsystem/theme` |
+| A colour, font, size, shape, spacing | `core/designsystem/theme` |
 | A composable used by 2+ features | `core/designsystem/components` |
 | A composable used by one feature | `feature/<name>/components` |
 | A formatter ("84K views", "11:04", "3 h ago") | `core/common/format` or `core/common/time` |
@@ -127,7 +140,7 @@ Versions in `gradle/libs.versions.toml` (version catalog). Use current stable ve
 
 | Need | Library |
 | --- | --- |
-| UI | Jetpack Compose (BOM), Material 3, Material 3 adaptive navigation suite (bottom bar / rail), Navigation Compose with type-safe routes |
+| UI | Jetpack Compose (BOM), Material 3, Material 3 adaptive (window size class for bottom bar / rail), Navigation Compose with type-safe routes |
 | Lifecycle | lifecycle-viewmodel-compose, lifecycle-runtime-compose |
 | DI | Hilt (+ hilt-navigation-compose, hilt-work) |
 | Database | Room with KSP |
@@ -139,7 +152,8 @@ Versions in `gradle/libs.versions.toml` (version catalog). Use current stable ve
 | Formatting | Spotless + ktlint |
 | Tests | JUnit, kotlinx-coroutines-test, Turbine, MockWebServer, Room testing, Compose UI test |
 
-Min SDK 26. Target and compile SDK: latest stable.
+Min SDK 26. Target SDK 37, compile SDK 37.2 (Compose 1.13 needs 37.1 or later).
+Add each library to the version catalog in the milestone that first uses it.
 
 ## Data model (Room)
 
@@ -220,7 +234,10 @@ from the persona's own channels (tag "Your channel"), and returns the top 15.
 - `local.properties`: `YOUTUBE_API_KEY=...` -> `buildConfigField` in `app/build.gradle.kts`.
   If it is missing, debug builds print a clear warning and use an empty key (the app then shows
   a "YouTube key missing" error); release builds fail with a clear message.
-- CI (GitHub Actions): key from the repository secret `YOUTUBE_API_KEY` when present.
+- CI (GitHub Actions): no YouTube key. The repo is public, so CI builds with the empty-key
+  fallback, and the uploaded debug APK carries no key. CI also runs gitleaks over the full history.
+- `.githooks/pre-commit` blocks commits whose staged diff looks like a key or adds a secret file,
+  and runs gitleaks when installed. Enable per clone: `git config core.hooksPath .githooks`.
 - `.gitignore` must include `local.properties`, `*.jks`, `*.keystore`, `keystore.properties`,
   `/screenshots/`, build outputs.
 - The OpenAI key is never in the build.

@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">FocusTube</string>
+
+    <!-- Bottom tabs -->
+    <string name="tab_picks">Picks</string>
+    <string name="tab_channels">Channels</string>
+    <string name="tab_search">Search</string>
+    <string name="tab_library">Library</string>
+
+    <!-- Top bar -->
+    <string name="action_settings">Settings</string>
+    <string name="action_back">Back</string>
+
+    <!-- Placeholder screens (Milestone 1) -->
+    <string name="placeholder_picks_title">Picks come later</string>
+    <string name="placeholder_picks_message">Videos picked for your goal, each with a reason, will appear here.</string>
+    <string name="placeholder_channels_title">Channels come later</string>
+    <string name="placeholder_channels_message">New uploads from the channels you follow will appear here.</string>
+    <string name="placeholder_search_title">Search comes later</string>
+    <string name="placeholder_search_message">Search YouTube here, ranked for your goal or as plain results.</string>
+    <string name="placeholder_library_title">Library comes later</string>
+    <string name="placeholder_library_message">Your Watch later list and History will appear here.</string>
+    <string name="settings_title">Settings</string>
+    <string name="placeholder_settings_title">Settings come later</string>
+    <string name="placeholder_settings_message">Your OpenAI key, default regions and the YouTube daily limit will live here.</string>
+</resources>

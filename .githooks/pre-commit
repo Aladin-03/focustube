@@ -1,0 +1,31 @@
+#!/bin/sh
+# Blocks commits whose staged changes look like they contain a secret.
+# Enable once per clone:  git config core.hooksPath .githooks
+
+patterns='AIza[0-9A-Za-z_-]{35}|sk-[A-Za-z0-9_-]{16,}|(store|key)Password[[:space:]]*[=:]'
+
+# Added lines only, without the +++ file headers.
+matches=$(git diff --cached -U0 --no-color | grep -E '^\+' | grep -vE '^\+\+\+ ' | grep -nE "$patterns")
+if [ -n "$matches" ]; then
+    echo "pre-commit: staged changes look like they contain a secret (API key or password)." >&2
+    echo "Matched lines are not shown so nothing is echoed to the terminal." >&2
+    echo "Remove it, keep it in local.properties, and try again." >&2
+    exit 1
+fi
+
+# Secret files that must never be committed, even if .gitignore is bypassed with -f.
+blocked=$(git diff --cached --name-only --diff-filter=AM | grep -E '(^|/)(local\.properties|keystore\.properties)$|\.(jks|keystore)$')
+if [ -n "$blocked" ]; then
+    echo "pre-commit: refusing to commit secret files:" >&2
+    echo "$blocked" >&2
+    exit 1
+fi
+
+# Full scan with gitleaks when it is installed.
+if command -v gitleaks >/dev/null 2>&1; then
+    gitleaks git --staged --no-banner --redact . >/dev/null 2>&1 || {
+        echo "pre-commit: gitleaks found a possible secret. Run: gitleaks git --staged --redact -v ." >&2
+        exit 1
+    }
+fi
+exit 0
