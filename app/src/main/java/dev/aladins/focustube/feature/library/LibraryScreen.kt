@@ -80,7 +80,7 @@ fun LibraryScreen(state: LibraryUiState, actions: LibraryActions, modifier: Modi
     LaunchedEffect(state.undo) {
         val undo = state.undo ?: return@LaunchedEffect
         val message = if (undo is LibraryUndo.WatchLater) removedWatchLater else removedHistory
-        val result = snackbar.showSnackbar(message, actionLabel = undoLabel, duration = SnackbarDuration.Short)
+        val result = snackbar.showSnackbar(message, actionLabel = undoLabel, duration = SnackbarDuration.Long)
         if (result == SnackbarResult.ActionPerformed) actions.onUndo() else actions.onUndoDismissed()
     }
 

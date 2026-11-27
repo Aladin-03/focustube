@@ -137,6 +137,7 @@ class PlayerViewModelTest {
             assertFalse(history.getProgress(1, "s1")!!.isWatched)
             vm.onEnded()
             assertTrue(expectMostRecentItem().hasEnded)
+            vm.onLeave() // leaving after the end must not overwrite the full-length save
             assertEquals(WatchProgress(45, 45, true), history.getProgress(1, "s1"))
             vm.onReplay()
             assertFalse(expectMostRecentItem().hasEnded)

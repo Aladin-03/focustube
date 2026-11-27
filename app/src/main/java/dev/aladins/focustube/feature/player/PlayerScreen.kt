@@ -92,7 +92,8 @@ fun PlayerScreen(state: PlayerUiState, actions: PlayerActions, modifier: Modifie
         if (!fullscreen) PlayerHeader(personaName = state.personaName, onBack = actions.onBack)
 
         when {
-            video != null ->
+            // Wait for the saved position too, so the player starts where the persona stopped.
+            video != null && !state.isLoading ->
                 BoxWithConstraints(
                     modifier = if (fullscreen) Modifier.fillMaxSize() else Modifier.fillMaxWidth(),
                     contentAlignment = Alignment.Center

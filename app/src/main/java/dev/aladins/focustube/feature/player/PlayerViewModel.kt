@@ -119,6 +119,8 @@ class PlayerViewModel @Inject constructor(
     }
 
     fun onPaused() {
+        // After the end, the full-length save stands; a later pause/leave mustn't overwrite it.
+        if (playback.value.hasEnded) return
         val video = currentVideo() ?: return
         if (inHistory()) save(video, playback.value.positionSeconds, ended = false)
     }
