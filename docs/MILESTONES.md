@@ -11,7 +11,7 @@ Status: update this table as milestones finish.
 | 2 | Personas | Done |
 | 3 | Classic search and player | Done |
 | 4 | Library | Done |
-| 5 | My channels | Not started |
+| 5 | My channels | In review |
 | 6 | AI picks | Not started |
 | 7 | AI search | Not started |
 | 8 | Polish and release | Not started |

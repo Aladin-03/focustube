@@ -76,7 +76,7 @@ app/src/main/java/dev/aladins/focustube/
 │   └── DispatchersModule.kt
 │
 ├── work/                        # Background jobs
-│   └── DailyUploadsWorker.kt    # Checks followed channels once a day
+│   └── DailyUploadsWorker.kt    # Once a day: new uploads of active personas' channels, refresh kept videos
 │
 └── feature/                     # One package per area of the app
     ├── onboarding/              # 01 Welcome
@@ -120,7 +120,10 @@ Debug-only code lives in `app/src/debug/`: the key-redacting HTTP logger, `HiltT
 `DebugQuotaReceiver`, which simulates the daily limit from adb (only callers with the DUMP
 permission, i.e. the adb shell):
 `adb shell am broadcast -n dev.aladins.focustube/.debug.DebugQuotaReceiver --es state exhausted`
-(or `--es state reset [--el units N]`).
+(or `--es state reset [--el units N]`). `DebugWorkReceiver` runs the daily uploads check now:
+`adb shell am broadcast -n dev.aladins.focustube/.debug.DebugWorkReceiver --es work uploads [--ez force true]`.
+The real scheduled job: `adb shell dumpsys jobscheduler | grep focustube`, then
+`adb shell cmd jobscheduler run -f dev.aladins.focustube <jobId>`.
 
 ### Navigation and the current persona
 
@@ -192,8 +195,10 @@ Add each library to the version catalog in the milestone that first uses it.
 | search_cache | A saved search (since v2) | id, persona_id, query, query_normalized, mode (CLASSIC/AI), regions (sorted), region_order, pages_loaded, page_tokens (JSON per region), created_at, last_used_at. Unique: persona + query_normalized + mode + regions |
 | search_result | A video in a saved search (since v2) | cache_id (deleted with its search), video_id, rank, reason?, level? |
 | quota_log | YouTube units this phone spent (since v2) | pacific_date, units_used |
-| channel | Every channel the app has seen | youtubeId, title, avatarUrl, subscriberCount, uploadsPlaylistId, lastCheckedAt, fetchedAt |
-| persona_channel | Persona follows channel | personaId, channelId, addedAt |
+| channel | Every channel the app has seen (since v4) | youtube_id, title, handle?, avatar_url?, subscriber_count?, video_count?, uploads_playlist_id, uploads_next_token?, last_checked_at?, fetched_at |
+| persona_channel | Persona follows channel (since v4) | persona_id + channel_id (key), added_at. A channel can belong to several personas |
+| channel_upload | A channel's uploads (since v4) | channel_id + video_id (key), published_at. Details are in `video` |
+| channel_search | A saved channel name search (since v4) | query_normalized (key), channel_ids, created_at. Reused 30 days |
 | pick_batch | A set of 12 picks | id, personaId, createdAt, regions |
 | pick | A video in a batch | batchId, videoId, rank, reason, level, isNewVoice, removed |
 | feedback | Thumbs | personaId, videoId, channelId, type (UP/DOWN), at |
@@ -247,15 +252,31 @@ Daily limit: 10,000 units, resets at midnight Pacific. Costs (approximate, from 
   and keep showing saved data.
 - Batch video detail calls (50 ids per `videos.list`).
 - New uploads: use each channel's uploads playlist (`playlistItems.list`, 1 unit), not search.
-- Add channel uses `search.list` with `type=channel` (100 units); cache results.
+  A check reads page 1 and keeps only uploads not saved yet; details of new videos come from
+  `videos.list` batched 50 at a time across channels. Cost: 1 unit per channel + 1 per 50 new videos.
+- Add channel: a link or `@handle` is looked up with `channels.list` (`forHandle`, `id`, or
+  `forUsername` for /user/ links), 1 unit. Plain words (and /c/ links, which the API can't
+  resolve) use `search.list type=channel` + `channels.list` (101 units), saved in `channel_search`
+  for 30 days. Following a channel the first time saves its first page of uploads (2 units).
+- Channel page: "More uploads" = next playlist page + details (2 units per 50). Popular sorts the
+  loaded uploads by views (0 units). Opening a channel nobody follows costs 3 units.
+- Daily check (`DailyUploadsWorker`, WorkManager): every 24 h, needs a network and a battery that
+  isn't low; channels followed by active personas only, skipping any checked in the last 20 h.
+  Stops at the daily limit (next run continues); retries after a network error. "Check now"
+  checks the current persona's channels regardless of the 20 h gap.
+- New uploads feed: the persona's channels' uploads from the last 30 days, by day, newest first.
+  No dots or counters: channel rows show "Latest upload 2 h ago".
 - Shorts detection: 3 minutes or less **and** vertical. `videos.list` is called with
   `maxHeight`, so YouTube reports the embed size; taller than wide = vertical. Live or upcoming
   videos (duration 0) are never Shorts.
 - Data older than 30 days is refetched or dropped: on app start, saved searches older than 30 days
   and video rows no saved search uses are deleted (`SearchRepository.removeStale`). Videos in any
-  persona's Watch later or History (archived personas included) are never deleted; instead their
-  details are refreshed when older than 30 days, when the Library opens, at most once a day
-  (`VideoRepository.refreshStaleLibraryVideos`, 1 unit per 50 videos).
+  persona's Watch later or History, or uploads of any followed channel (archived personas
+  included), are never deleted; instead their details are refreshed when older than 30 days, at
+  most once a day, when the Library opens or the daily job runs
+  (`VideoRepository.refreshStaleSavedVideos`, 1 unit per 50 videos). Channels nobody follows and
+  saved channel searches are deleted after 30 days (`ChannelRepository.removeStale`); followed
+  channels' details refresh on the daily check.
 
 ## OpenAI
 
