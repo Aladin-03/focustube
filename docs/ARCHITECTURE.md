@@ -122,8 +122,11 @@ permission, i.e. the adb shell):
 `adb shell am broadcast -n dev.aladins.focustube/.debug.DebugQuotaReceiver --es state exhausted`
 (or `--es state reset [--el units N]`). `DebugWorkReceiver` runs the daily uploads check now:
 `adb shell am broadcast -n dev.aladins.focustube/.debug.DebugWorkReceiver --es work uploads [--ez force true]`.
-The real scheduled job: `adb shell dumpsys jobscheduler | grep focustube`, then
-`adb shell cmd jobscheduler run -f dev.aladins.focustube <jobId>`.
+The real scheduled job shows in `adb shell dumpsys jobscheduler | grep focustube` (namespace
+`androidx.work.systemjobscheduler`, with its NET and BATNOTLOW constraints and next run time).
+Forcing it (`adb shell cmd jobscheduler run -f -n androidx.work.systemjobscheduler
+dev.aladins.focustube <jobId>`) starts the job, but WorkManager won't run a periodic worker before
+its period is due, so use `DebugWorkReceiver` to run the check now.
 
 ### Navigation and the current persona
 
