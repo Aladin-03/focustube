@@ -6,8 +6,7 @@ import kotlinx.serialization.Serializable
  * Every navigation destination in the app, as type-safe routes.
  *
  * Named `Route.X` so they never clash with the `XRoute` composables inside each feature.
- * Later milestones add Onboarding, Personas, EditPersona(personaId), ArchivedPersonas,
- * Player(videoId), Channel(channelId) and AddChannel here.
+ * Later milestones add Player(videoId), Channel(channelId) and AddChannel here.
  */
 sealed interface Route {
     /** Tab: AI picks for the current persona. */
@@ -29,4 +28,29 @@ sealed interface Route {
     /** Full-screen Settings, opened from the gear in the top bar. */
     @Serializable
     data object Settings : Route
+
+    /** 01: first launch, create the first persona. */
+    @Serializable
+    data object Welcome : Route
+
+    /** 02: list of active personas, opened from the persona name in the top bar. */
+    @Serializable
+    data object Personas : Route
+
+    /** 03 in create mode. */
+    @Serializable
+    data object CreatePersona : Route
+
+    /** 03 in edit mode. */
+    @Serializable
+    data class EditPersona(val personaId: Long) : Route {
+        companion object {
+            /** SavedStateHandle key of [personaId] (the property name). */
+            const val PERSONA_ID_KEY = "personaId"
+        }
+    }
+
+    /** 04: archived personas with Restore. */
+    @Serializable
+    data object ArchivedPersonas : Route
 }

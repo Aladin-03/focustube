@@ -8,7 +8,7 @@ Status: update this table as milestones finish.
 | # | Milestone | Status |
 | --- | --- | --- |
 | 1 | Foundation | Done |
-| 2 | Personas | Not started |
+| 2 | Personas | Done |
 | 3 | Classic search and player | Not started |
 | 4 | Library | Not started |
 | 5 | My channels | Not started |
@@ -32,8 +32,8 @@ debug APK and runs unit tests on every push.
 - `lintDebug`, `testDebugUnitTest` pass; a theme/token unit test or screenshot check exists.
 
 ## 2. Personas
-**Scope:** Room database (all tables from `ARCHITECTURE.md`, schema export on), persona
-repository, screens 01-04, persona switcher in the top bar, start tab rule (goal -> Picks,
+**Scope:** Room database (the `persona` table; other tables arrive with the milestone that first
+uses them; schema export on, CI schema check, migration test set-up), persona repository, screens 01-04, persona switcher in the top bar, start tab rule (goal -> Picks,
 no goal -> My channels), current persona remembered across restarts.
 **Acceptance:** first launch shows Welcome; create 3 personas; switch; edit; archive one; restore
 it; force-stop and reopen: everything kept. DAO and repository tests pass.
@@ -41,7 +41,7 @@ it; force-stop and reopen: everything kept. DAO and repository tests pass.
 ## 3. Classic search and player
 **Scope:** YouTube client, `QuotaTracker`, `AppError`, Classic search (screen 12) with region
 sheet (13) and Videos/Shorts filter, saved searches, player (14, 15) with FocusTube end state,
-LimitBanner (18), Settings: default regions + YouTube daily limit display.
+LimitBanner (18), Settings: default regions + YouTube daily limit display + Archived personas link.
 **Acceptance:** search, filter, open and watch a video and a Short; nothing plays next; same search
 twice spends no units; simulated quota error shows the banner and keeps saved results.
 

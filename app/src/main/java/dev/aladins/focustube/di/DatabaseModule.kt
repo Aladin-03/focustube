@@ -1,0 +1,25 @@
+package dev.aladins.focustube.di
+
+import android.content.Context
+import androidx.room.Room
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
+import dev.aladins.focustube.data.local.dao.PersonaDao
+import dev.aladins.focustube.data.local.database.FocusTubeDatabase
+import javax.inject.Singleton
+
+/** Provides the Room database and its DAOs. No destructive migration fallback, ever. */
+@Module
+@InstallIn(SingletonComponent::class)
+object DatabaseModule {
+    @Provides
+    @Singleton
+    fun provideDatabase(@ApplicationContext context: Context): FocusTubeDatabase =
+        Room.databaseBuilder(context, FocusTubeDatabase::class.java, FocusTubeDatabase.NAME).build()
+
+    @Provides
+    fun providePersonaDao(database: FocusTubeDatabase): PersonaDao = database.personaDao()
+}

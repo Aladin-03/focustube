@@ -5,19 +5,26 @@ import androidx.annotation.StringRes
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import dev.aladins.focustube.R
 import dev.aladins.focustube.core.designsystem.theme.FocusTubeTheme
+import dev.aladins.focustube.domain.model.Persona
+import dev.aladins.focustube.domain.model.Region
+import kotlin.time.Instant
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestName
 import org.junit.runner.RunWith
 
-/** Milestone 1 acceptance: the four tabs switch, the gear opens Settings, Back returns. */
+/**
+ * App shell navigation for a persona: the four tabs switch, the gear opens Settings, Back returns
+ * to the persona's start tab. (Persona screens need Hilt and are covered by FirstLaunchTest.)
+ */
 @RunWith(AndroidJUnit4::class)
 class AppNavigationTest {
     @get:Rule
@@ -34,9 +41,36 @@ class AppNavigationTest {
         composeRule.waitForIdle()
     }
 
+    private fun start(persona: Persona = Guitar) {
+        composeRule.setContent { FocusTubeTheme { AppScaffold(appState = AppUiState.Ready(persona)) } }
+    }
+
     @Before
     fun setUp() {
-        composeRule.setContent { FocusTubeTheme { AppScaffold() } }
+        if (startsWithDefaultPersona) start()
+    }
+
+    /** Tests that need a different persona turn the default start off via this flag. */
+    private val startsWithDefaultPersona: Boolean
+        get() = !testName.methodName.startsWith("noGoal")
+
+    @get:Rule
+    val testName = TestName()
+
+    @Test
+    fun topBarShowsPersonaAndOpensPersonasFromName() {
+        composeRule.onNodeWithText("Guitar").assertIsDisplayed()
+        composeRule.onNodeWithText(text(R.string.placeholder_picks_title)).assertIsDisplayed()
+    }
+
+    @Test
+    fun noGoalPersonaStartsOnChannels_andBackFromPicksReturnsThere() {
+        start(General)
+        tab(R.string.tab_channels).assertIsSelected()
+        tab(R.string.tab_picks).performClick()
+        tab(R.string.tab_picks).assertIsSelected()
+        pressSystemBack()
+        tab(R.string.tab_channels).assertIsSelected()
     }
 
     @Test
@@ -89,5 +123,17 @@ class AppNavigationTest {
         pressSystemBack()
         tab(R.string.tab_picks).assertIsSelected()
         composeRule.onNodeWithText(text(R.string.placeholder_picks_title)).assertIsDisplayed()
+    }
+
+    private companion object {
+        val Guitar =
+            Persona(
+                1,
+                "Guitar",
+                "Learn fingerstyle guitar. I'm a beginner.",
+                Region.Defaults,
+                Instant.fromEpochMilliseconds(0)
+            )
+        val General = Persona(2, "General", null, Region.Defaults, Instant.fromEpochMilliseconds(0))
     }
 }

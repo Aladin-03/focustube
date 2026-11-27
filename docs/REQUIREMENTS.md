@@ -16,6 +16,12 @@ Aladin's tablet. No Google sign-in. Nothing syncs back to YouTube.
 - Unlimited personas. Switch by tapping the persona name in the top bar.
 - No hard delete. **Archive** a persona instead; it keeps its channels, Watch later and history.
   An Archived list (from the Personas screen and Settings) lets you restore it.
+  - The last active persona can't be archived ("You need at least one persona").
+  - Archiving the current persona switches to the oldest remaining active persona and opens its
+    start tab. Restoring does not switch persona.
+  - Active persona names are unique (ignoring case). If a restored persona's name is taken, it
+    gets a number: "Guitar 2". (Decided 27 Nov 2026.)
+- Name up to 30 characters, goal up to 300. Personas are listed in creation order.
 - Edit name and goal. Edit screen also lists the persona's hidden channels, which can be unhidden.
 - A persona **with a goal** gets AI picks and opens on the Picks tab.
 - A persona **without a goal** (e.g. "General") has no AI picks, still has both searches and

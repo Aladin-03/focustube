@@ -25,4 +25,11 @@ object FocusTubeIcons {
     @DrawableRes val Add = R.drawable.ic_add
 
     @DrawableRes val Globe = R.drawable.ic_language
+
+    @DrawableRes val Edit = R.drawable.ic_edit
+
+    @DrawableRes val Info = R.drawable.ic_info
+
+    /** FocusTube's mark (the launcher icon's foreground: white, on a 108 dp canvas). */
+    @DrawableRes val LogoMark = R.drawable.ic_launcher_foreground
 }

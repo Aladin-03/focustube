@@ -1,17 +1,21 @@
 package dev.aladins.focustube.core.designsystem.components
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -60,14 +64,15 @@ fun PrimaryButton(
     }
 }
 
-/** Outlined button with a line-coloured border, fully rounded. A secondary action. */
+/** Outlined button with a line-coloured border, fully rounded. A secondary action, optionally with an icon. */
 @Composable
 fun SecondaryButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    size: FtButtonSize = FtButtonSize.Regular
+    size: FtButtonSize = FtButtonSize.Regular,
+    @DrawableRes leadingIcon: Int? = null
 ) {
     OutlinedButton(
         onClick = onClick,
@@ -82,6 +87,13 @@ fun SecondaryButton(
         contentPadding = ButtonContentPadding,
         modifier = modifier.heightIn(min = size.height())
     ) {
+        if (leadingIcon != null) {
+            Icon(
+                painter = painterResource(leadingIcon),
+                contentDescription = null,
+                modifier = Modifier.padding(end = FocusTubeTheme.spacing.sm).size(18.dp)
+            )
+        }
         Text(text = text, style = FocusTubeTheme.typography.button)
     }
 }
