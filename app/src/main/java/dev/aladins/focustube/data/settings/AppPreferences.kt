@@ -30,8 +30,16 @@ class AppPreferences @Inject constructor(private val dataStore: DataStore<Prefer
         dataStore.edit { it[DEFAULT_REGIONS] = stored }
     }
 
+    /** When stale Watch later / History details were last refreshed (epoch ms), or null. */
+    val libraryRefreshedAt: Flow<Long?> = dataStore.data.map { it[LIBRARY_REFRESHED_AT] }
+
+    suspend fun setLibraryRefreshedAt(epochMillis: Long) {
+        dataStore.edit { it[LIBRARY_REFRESHED_AT] = epochMillis }
+    }
+
     private companion object {
         val CURRENT_PERSONA_ID = longPreferencesKey("current_persona_id")
         val DEFAULT_REGIONS = stringPreferencesKey("default_regions")
+        val LIBRARY_REFRESHED_AT = longPreferencesKey("library_refreshed_at")
     }
 }

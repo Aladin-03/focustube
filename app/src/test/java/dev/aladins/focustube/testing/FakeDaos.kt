@@ -53,8 +53,17 @@ class FakeVideoDao : VideoDao {
 
     override suspend fun get(id: String): VideoEntity? = rows.value[id]
 
+    /** Library ids (set by the test) for [libraryIdsFetchedBefore]. */
+    var libraryIds: Set<String> = emptySet()
+
+    override suspend fun libraryIdsFetchedBefore(cutoff: Long): List<String> = rows.value.values.filter {
+        it.fetchedAt <
+            cutoff &&
+            it.youtubeId in libraryIds
+    }.map { it.youtubeId }
+
     override suspend fun deleteUnusedOlderThan(cutoff: Long): Int {
-        val keep = referencedIds()
+        val keep = referencedIds() + libraryIds
         val drop = rows.value.values.filter {
             it.fetchedAt < cutoff && it.youtubeId !in keep
         }.map { it.youtubeId }.toSet()

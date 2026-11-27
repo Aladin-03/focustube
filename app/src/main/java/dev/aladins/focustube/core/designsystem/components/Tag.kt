@@ -12,9 +12,9 @@ import androidx.compose.ui.unit.dp
 import dev.aladins.focustube.core.designsystem.theme.FocusTubeTheme
 
 /** The kinds of tag in DESIGN.md, each with its colours. */
-enum class TagStyle { NewVoice, Short, YourChannel, ComingLater }
+enum class TagStyle { NewVoice, Short, YourChannel, ComingLater, Watched }
 
-/** Small uppercase label with 6 dp corners: "NEW VOICE", "SHORT", "YOUR CHANNEL", "COMING LATER". */
+/** Small uppercase label with 6 dp corners: "NEW VOICE", "SHORT", "YOUR CHANNEL", "COMING LATER", "WATCHED". */
 @Composable
 fun Tag(text: String, style: TagStyle, modifier: Modifier = Modifier) {
     val scheme = MaterialTheme.colorScheme
@@ -23,7 +23,7 @@ fun Tag(text: String, style: TagStyle, modifier: Modifier = Modifier) {
         when (style) {
             TagStyle.NewVoice -> extra.amberSoft to extra.amberTagInk
             TagStyle.Short, TagStyle.ComingLater -> scheme.surfaceVariant to scheme.onSurfaceVariant
-            TagStyle.YourChannel -> scheme.primaryContainer to scheme.onPrimaryContainer
+            TagStyle.YourChannel, TagStyle.Watched -> scheme.primaryContainer to scheme.onPrimaryContainer
         }
     Text(
         text = text.uppercase(),

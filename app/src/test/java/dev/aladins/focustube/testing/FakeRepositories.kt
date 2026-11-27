@@ -100,6 +100,13 @@ class FakeVideoRepository(initial: Map<String, Video> = emptyMap()) : VideoRepos
         fetchCalls++
         return fetchResult
     }
+
+    var refreshCalls = 0
+
+    override suspend fun refreshStaleLibraryVideos(): AppResult<Unit> {
+        refreshCalls++
+        return AppResult.Success(Unit)
+    }
 }
 
 /** A test video. */

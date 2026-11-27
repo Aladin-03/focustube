@@ -89,6 +89,7 @@ class ColorSchemeTest {
         assertHex("amberTagInk", 0xFF8A4E08, colors.amberTagInk)
         assertHex("meterOff", 0xFFC9D6CF, colors.meterOff)
         assertHex("videoScrim", 0xCC0E1412, colors.videoScrim)
+        assertEquals(Color.Unspecified, colors.segmentSelectedOutline)
     }
 
     @Test
@@ -99,5 +100,6 @@ class ColorSchemeTest {
         assertHex("amberTagInk", 0xFFF2C88C, colors.amberTagInk)
         assertHex("meterOff", 0xFF34433D, colors.meterOff)
         assertHex("videoScrim", 0xCC0E1412, colors.videoScrim)
+        assertHex("segmentSelectedOutline (muted)", 0xFF9BA9A2, colors.segmentSelectedOutline)
     }
 }

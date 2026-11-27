@@ -16,10 +16,12 @@ import dev.aladins.focustube.domain.model.SavedSearch
 import dev.aladins.focustube.domain.model.SearchKey
 import dev.aladins.focustube.domain.model.SearchMode
 import dev.aladins.focustube.domain.model.ShortsFilter
+import dev.aladins.focustube.domain.repository.HistoryRepository
 import dev.aladins.focustube.domain.repository.PersonaRepository
 import dev.aladins.focustube.domain.repository.QuotaRepository
 import dev.aladins.focustube.domain.repository.SearchRepository
 import dev.aladins.focustube.domain.repository.SettingsRepository
+import dev.aladins.focustube.domain.repository.WatchLaterRepository
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -46,10 +48,18 @@ class SearchViewModel @Inject constructor(
     private val personas: PersonaRepository,
     private val searches: SearchRepository,
     quota: QuotaRepository,
-    settings: SettingsRepository
+    settings: SettingsRepository,
+    private val watchLater: WatchLaterRepository,
+    history: HistoryRepository
 ) : ViewModel() {
     /** The search field's text. */
     val query = TextFieldState()
+
+    /** The persona's Watch later ids and watch progress (bookmarks and progress bars on rows). */
+    private val library =
+        personas.observeCurrent().filterNotNull().flatMapLatest { p ->
+            combine(watchLater.observeIds(p.id), history.observeProgress(p.id), ::Pair)
+        }.onStart { emit(emptySet<String>() to emptyMap()) }
 
     private val submitted = MutableStateFlow<SearchKey?>(null)
     private val filter = MutableStateFlow(ShortsFilter.All)
@@ -78,9 +88,19 @@ class SearchViewModel @Inject constructor(
                 ::Triple
             ),
             combine(submitted, saved, filter, ::Triple),
-            combine(request, recent.onStart { emit(emptyList()) }, ::Pair)
-        ) { (p, defaults, q), (key, savedSearch, filterValue), (req, rec) ->
-            buildState(p, defaults, q, key, savedSearch, filterValue, req, rec)
+            combine(request, recent.onStart { emit(emptyList()) }, ::Pair),
+            library
+        ) { (p, defaults, q), (key, savedSearch, filterValue), (req, rec), (savedIds, progress) ->
+            buildState(
+                p,
+                defaults,
+                q,
+                key,
+                savedSearch,
+                filterValue,
+                req,
+                rec
+            ).copy(savedIds = savedIds, progress = progress)
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS), SearchUiState())
 
     init {
@@ -111,6 +131,14 @@ class SearchViewModel @Inject constructor(
     fun onLoadMore() {
         val key = submitted.value ?: return
         run(isMore = true) { searches.loadMore(key) }
+    }
+
+    /** Saves or removes a result from the persona's Watch later. */
+    fun onToggleWatchLater(videoId: String) {
+        viewModelScope.launch {
+            val p = currentPersona() ?: return@launch
+            if (videoId in uiState.value.savedIds) watchLater.remove(p.id, videoId) else watchLater.add(p.id, videoId)
+        }
     }
 
     fun onFilterChange(value: ShortsFilter) {

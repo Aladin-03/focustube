@@ -65,9 +65,9 @@ Build each once, use everywhere.
 | `FtBottomBar` / `FtNavRail` | Four tabs: Picks (sparkle), Channels (screen), Search (magnifier), Library (bookmark). Active = icon inside a pineSoft pill + ink bold label. Rail on wide screens. |
 | `PrimaryButton`, `SecondaryButton` | Filled pine / outlined line. Fully rounded. |
 | `RegionChip` | Globe icon + "US, UK, DE +4". Opens the region sheet. |
-| `SegmentedTabs` | Two options in a surface2 track; selected option on surface with a light shadow. Used for New uploads / Channels, Watch later / History, AI / Classic. |
+| `SegmentedTabs` | Two options in a surface2 track; selected option on surface with a light shadow. In dark theme the selected option also gets a 1 dp muted (`#9BA9A2`) outline, because surface alone is too close to the track (needs 3:1 for non-text UI; checked in ContrastTest). Used for New uploads / Channels, Watch later / History, AI / Classic. |
 | `LevelMeter` | Three small rising bars (4×7, 4×10, 4×13 dp) + level word. Filled bars in pine, the rest meterOff. Beginner = 1, Intermediate = 2, Advanced = 3. |
-| `Tag` | Small uppercase label, 6 dp corners: "New voice" (amber), "Short" (surface2 / muted), "Your channel" (pineSoft / pine), "Coming later". |
+| `Tag` | Small uppercase label, 6 dp corners: "New voice" (amber), "Short" (surface2 / muted), "Your channel" (pineSoft / pine), "Coming later". "Watched" (pineSoft / pine) marks a watched video in the Library. |
 | `Thumbnail` | Rounded image with duration badge (mono, videoScrim) and optional progress bar (pine) along the bottom. |
 | `PickCard` | Large thumbnail, title (+ New voice tag), meta, reason box (surface2) with LevelMeter, action row: thumbs up, thumbs down, "Later", more (⋯). |
 | `VideoRow` | 136×77 dp thumbnail left, title / meta / tags right. Used in channels, search, library. |
@@ -77,6 +77,8 @@ Build each once, use everywhere.
 | `EmptyState` | Illustration block, title, text, primary button, optional text link. |
 | `SettingsGroup` / `SettingsRow` | Rounded surface group with mono section label above; rows with value + chevron. |
 | `OptionsSheet` | Bottom sheet for pick options and add-to-personas checklist. |
+
+Watch later toggle: an outlined bookmark (not saved) / filled pine bookmark (saved) at the end of search rows; in the player a pill "Watch later" button that turns pineSoft when saved.
 
 Icons: simple 2 dp stroke line icons (Material Symbols Rounded outlined is fine). No emoji in UI.
 Top-bar action icons (Settings gear, Back arrow) use ink (`onBackground`), not muted.
@@ -103,7 +105,7 @@ The approved wireframes number the screens; keep these names in code.
 | 13 | Region filter sheet | Country checkboxes, + Add a country, Reset to defaults, Apply. |
 | 14 | Player | Back, "Watching as [persona]" chip, 16:9 player, title, channel row + Channel button, actions (Helpful, thumbs down, Watch later toggle), description card, end mark "That's it. Nothing plays next." Leave room for a Summarize action (later). |
 | 15 | Player, Short | Same screen with a tall video. |
-| 16 | Library | SegmentedTabs Watch later (n) / History, total time line, VideoRows with progress bars and notes ("Stopped at 6:50"). |
+| 16 | Library | SegmentedTabs Watch later (n) / History. Watch later: "4 VIDEOS · 1 H 12 MIN" status line, newest first. History: day headers (Today, Yesterday, "Mon 24 Nov"), newest first, "Clear history" (asks first, no Undo). Rows: VideoRow with progress bar and a "Watched" tag or "Stopped at 6:50". Swipe left to remove (surface2 background, delete icon) with an Undo snackbar. |
 | 17 | Settings | AI group (OpenAI key + Test + status), Videos group (default regions, YouTube daily limit with progress bar and reset time), Personas group (Archived, Backup "Coming later"), version footer. |
 | 18 | Daily limit reached | LimitBanner on top of the saved content; refresh greyed out. |
 | 19 | No OpenAI key | EmptyState "Add your OpenAI key" + Open Settings / Use Classic search. |

@@ -13,6 +13,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import dev.aladins.focustube.R
 import dev.aladins.focustube.core.designsystem.theme.FocusTubeTheme
 import dev.aladins.focustube.domain.model.Video
+import dev.aladins.focustube.feature.player.PlayerActions
 import dev.aladins.focustube.feature.player.PlayerScreen
 import dev.aladins.focustube.feature.player.PlayerUiState
 import kotlin.time.Instant
@@ -45,14 +46,19 @@ class PlayerEndStateTest {
                 }
                 PlayerScreen(
                     state = state,
-                    onBack = {},
-                    onProgress = {},
-                    onEnded = {},
-                    onReplay = {
-                        replayed = true
-                        state = state.copy(hasEnded = false)
-                    },
-                    onUnplayable = {}
+                    actions =
+                        PlayerActions(
+                            onBack = {},
+                            onProgress = {},
+                            onPaused = {},
+                            onEnded = {},
+                            onReplay = {
+                                replayed = true
+                                state = state.copy(hasEnded = false)
+                            },
+                            onUnplayable = {},
+                            onToggleWatchLater = {}
+                        )
                 )
             }
         }

@@ -26,7 +26,8 @@ fun SearchRoute(
                 onRecentClick = viewModel::onRecentClick,
                 onRecentRemove = viewModel::onRecentRemove,
                 onRegionsApply = viewModel::onRegionsApply,
-                onOpenVideo = onOpenVideo
+                onOpenVideo = onOpenVideo,
+                onToggleWatchLater = viewModel::onToggleWatchLater
             ),
         modifier = modifier
     )
