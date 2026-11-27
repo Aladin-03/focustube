@@ -28,6 +28,9 @@ tokens only, never hex values.
 | meterOff | `#C9D6CF` | `#34433D` | Unfilled bars of the level meter |
 | videoScrim | `rgba(14,20,18,0.8)` | same | Duration badge on thumbnails |
 
+Field errors (text, border, over-limit counter) use amberInk, not red. Material's error slots map
+to amberInk / amberSoft.
+
 Theme follows the system light/dark setting.
 
 ## Typography

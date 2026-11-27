@@ -8,7 +8,7 @@ Status: update this table as milestones finish.
 | # | Milestone | Status |
 | --- | --- | --- |
 | 1 | Foundation | Done |
-| 2 | Personas | In review |
+| 2 | Personas | Done |
 | 3 | Classic search and player | Not started |
 | 4 | Library | Not started |
 | 5 | My channels | Not started |
