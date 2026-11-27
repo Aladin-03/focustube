@@ -3,15 +3,19 @@ package dev.aladins.focustube.data.local.database
 import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import dev.aladins.focustube.data.local.dao.HistoryDao
 import dev.aladins.focustube.data.local.dao.PersonaDao
 import dev.aladins.focustube.data.local.dao.QuotaDao
 import dev.aladins.focustube.data.local.dao.SearchDao
 import dev.aladins.focustube.data.local.dao.VideoDao
+import dev.aladins.focustube.data.local.dao.WatchLaterDao
+import dev.aladins.focustube.data.local.entity.HistoryEntity
 import dev.aladins.focustube.data.local.entity.PersonaEntity
 import dev.aladins.focustube.data.local.entity.QuotaLogEntity
 import dev.aladins.focustube.data.local.entity.SearchCacheEntity
 import dev.aladins.focustube.data.local.entity.SearchResultEntity
 import dev.aladins.focustube.data.local.entity.VideoEntity
+import dev.aladins.focustube.data.local.entity.WatchLaterEntity
 
 /**
  * The app's Room database.
@@ -26,13 +30,17 @@ import dev.aladins.focustube.data.local.entity.VideoEntity
         VideoEntity::class,
         SearchCacheEntity::class,
         SearchResultEntity::class,
-        QuotaLogEntity::class
+        QuotaLogEntity::class,
+        WatchLaterEntity::class,
+        HistoryEntity::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = true,
     autoMigrations = [
         // v2 (Milestone 3): video, search_cache, search_result, quota_log.
-        AutoMigration(from = 1, to = 2)
+        AutoMigration(from = 1, to = 2),
+        // v3 (Milestone 4): watch_later, history.
+        AutoMigration(from = 2, to = 3)
     ]
 )
 abstract class FocusTubeDatabase : RoomDatabase() {
@@ -43,6 +51,10 @@ abstract class FocusTubeDatabase : RoomDatabase() {
     abstract fun searchDao(): SearchDao
 
     abstract fun quotaDao(): QuotaDao
+
+    abstract fun watchLaterDao(): WatchLaterDao
+
+    abstract fun historyDao(): HistoryDao
 
     companion object {
         const val NAME = "focustube.db"
