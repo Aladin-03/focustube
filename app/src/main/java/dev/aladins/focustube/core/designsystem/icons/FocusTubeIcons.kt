@@ -52,4 +52,9 @@ object FocusTubeIcons {
     @DrawableRes val FullscreenExit = R.drawable.ic_fullscreen_exit
 
     @DrawableRes val ChevronUp = R.drawable.ic_expand_less
+
+    /** Watch later: saved (the outline is [Library]). */
+    @DrawableRes val BookmarkFilled = R.drawable.ic_bookmark_filled
+
+    @DrawableRes val Delete = R.drawable.ic_delete
 }

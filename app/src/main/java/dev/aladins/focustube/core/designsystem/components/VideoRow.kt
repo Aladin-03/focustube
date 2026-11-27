@@ -2,6 +2,7 @@ package dev.aladins.focustube.core.designsystem.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
@@ -20,8 +21,9 @@ import androidx.compose.ui.unit.dp
 import dev.aladins.focustube.core.designsystem.theme.FocusTubeTheme
 
 /**
- * A video in a list: 136x77 dp thumbnail on the left; title, [meta] and [tags] on the right.
- * Used by search, channels and the library.
+ * A video in a list: 136x77 dp thumbnail on the left; title, [meta] and [tags] on the right, and
+ * an optional [trailing] action (e.g. the Watch later bookmark). Used by search, channels and the
+ * library.
  */
 @Composable
 fun VideoRow(
@@ -32,7 +34,8 @@ fun VideoRow(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     progress: Float? = null,
-    tags: @Composable () -> Unit = {}
+    tags: @Composable () -> Unit = {},
+    trailing: (@Composable () -> Unit)? = null
 ) {
     val spacing = FocusTubeTheme.spacing
     Row(
@@ -70,6 +73,9 @@ fun VideoRow(
                 horizontalArrangement = Arrangement.spacedBy(spacing.xs),
                 modifier = Modifier.padding(top = spacing.xs)
             ) { tags() }
+        }
+        if (trailing != null) {
+            Box(Modifier.padding(start = spacing.xs)) { trailing() }
         }
     }
 }
