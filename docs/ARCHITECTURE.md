@@ -23,13 +23,14 @@ written; there are no empty or placeholder packages.
 ```
 app/src/main/java/dev/aladins/focustube/
 ├── FocusTubeApp.kt              # @HiltAndroidApp Application; WorkManager setup
-├── MainActivity.kt              # Single activity, sets FocusTubeTheme + AppNavHost
+├── MainActivity.kt              # Single activity: splash until AppViewModel knows the start, then AppScaffold
 │
 ├── navigation/                  # How screens connect
 │   ├── AppScaffold.kt           # App shell: top bar, bottom bar / rail, centred content, NavHost
-│   ├── AppNavHost.kt            # NavHost with every route; navigateToTab()
+│   ├── AppNavHost.kt            # NavHost with every route; navigateToTab(), resetToTab()
+│   ├── AppViewModel.kt          # Loading / NeedsWelcome / Ready(current persona)
 │   ├── Route.kt                 # Type-safe routes: sealed interface Route { Picks, Settings... }
-│   └── TopLevelDestination.kt   # The 4 tabs (icon, label, route)
+│   └── TopLevelDestination.kt   # The 4 tabs (icon, label, route); Persona.startTab()
 │
 ├── core/                        # Shared, feature-agnostic building blocks
 │   ├── designsystem/
@@ -39,10 +40,11 @@ app/src/main/java/dev/aladins/focustube/
 │   │   └── icons/               # FocusTubeIcons (one object listing every icon)
 │   ├── common/
 │   │   ├── result/              # AppResult / AppError (QuotaExceeded, NoOpenAiKey, Network...)
-│   │   ├── time/                # Clock interface, PacificDay helper, "3 h ago" formatter
+│   │   ├── time/                # PacificDay helper, "3 h ago" formatter (the clock is kotlin.time.Clock)
 │   │   ├── format/              # Duration, view count ("84K"), subscriber formatters
 │   │   └── dispatchers/         # Injected coroutine dispatchers
-│   └── ui/                      # UiState helpers, collectAsStateWithLifecycle wrappers, previews
+│   └── ui/                      # UI shared by 2+ features that isn't a design-system component:
+│                                #   PersonaFormFields (Welcome + Create/edit), UiState helpers
 │
 ├── domain/                      # Business rules: plain Kotlin, no Android imports
 │   ├── model/                   # Persona, Channel, Video, Pick, PickBatch, Level, Region...
@@ -53,21 +55,23 @@ app/src/main/java/dev/aladins/focustube/
 ├── data/                        # Where data comes from
 │   ├── repository/              # Repository IMPLEMENTATIONS (cache-first logic lives here)
 │   ├── local/
-│   │   ├── database/            # FocusTubeDatabase, Converters, migrations
+│   │   ├── database/            # FocusTubeDatabase, migrations/ (written Migration objects)
 │   │   ├── dao/                 # One DAO per table group
 │   │   └── entity/              # Room entities
 │   ├── remote/
 │   │   ├── youtube/             # YouTubeApi (Retrofit), dto/, YouTubeDataSource
 │   │   ├── openai/              # OpenAiApi (Retrofit), dto/, OpenAiDataSource, prompts/
 │   │   └── quota/               # QuotaTracker + OkHttp interceptor counting YouTube units
-│   ├── settings/                # SettingsStore (encrypted DataStore): OpenAI key, default regions
+│   ├── settings/                # AppPreferences (plain DataStore: current persona);
+│   │                            #   SettingsStore (encrypted DataStore): OpenAI key, default regions
 │   └── mapper/                  # Entity <-> domain, DTO <-> domain. Each mapping written once.
 │
 ├── di/                          # Hilt modules only, each added with the first thing it provides
 │   ├── DatabaseModule.kt
 │   ├── NetworkModule.kt
 │   ├── RepositoryModule.kt      # Binds interfaces to implementations
-│   ├── SettingsModule.kt
+│   ├── SettingsModule.kt        # DataStore(s)
+│   ├── TimeModule.kt            # kotlin.time.Clock (Clock.System; tests use a fixed clock)
 │   └── DispatchersModule.kt
 │
 ├── work/                        # Background jobs
@@ -105,6 +109,20 @@ feature/picks/
 ```
 
 Tests mirror the same packages under `app/src/test/` (unit) and `app/src/androidTest/` (UI, Room).
+Unit-test fakes live in `app/src/test/.../testing/`. Instrumented tests run with
+`HiltTestRunner`; `androidTest/.../di/` swaps in an in-memory database and a fresh DataStore.
+
+### Navigation and the current persona
+
+- The NavHost starts on `Route.Welcome` when there is no active persona, otherwise on the current
+  persona's start tab (`Persona.startTab()`: Picks with a goal, Channels without).
+- The current persona's start tab is the root of the back stack. Back from another tab returns
+  there, then leaves the app.
+- Screens never navigate on a persona change. They only change data (create, switch, archive);
+  `AppScaffold` sees the current persona's id change and clears the back stack to the new
+  persona's start tab.
+- Full-screen routes (Welcome, Personas, CreatePersona, EditPersona(personaId),
+  ArchivedPersonas, Settings) hide the tabs and draw their own top bar.
 
 ### Where does it go?
 
@@ -159,7 +177,7 @@ Add each library to the version catalog in the milestone that first uses it.
 
 | Table | Holds | Key fields |
 | --- | --- | --- |
-| persona | Each persona | id, name, goal?, regions, archivedAt?, createdAt |
+| persona | Each persona (since v1) | id, name, goal?, regions ("US,GB,DE"), created_at, archived_at? |
 | channel | Every channel the app has seen | youtubeId, title, avatarUrl, subscriberCount, uploadsPlaylistId, lastCheckedAt, fetchedAt |
 | persona_channel | Persona follows channel | personaId, channelId, addedAt |
 | video | Every video shown anywhere | youtubeId, title, channelId, durationSec, publishedAt, viewCount, isShort, description, thumbnailUrl, fetchedAt |
@@ -173,8 +191,30 @@ Add each library to the version catalog in the milestone that first uses it.
 | history | Library tab | personaId, videoId, watchedAt, progressSec, isWatched |
 | quota_log | YouTube units spent | pacificDate, unitsUsed |
 
-Persona-owned rows always carry `personaId`. Archive sets `archivedAt`; nothing is deleted.
-Room schema export is on (`room.schemaLocation`) so migrations are tracked from the start.
+Tables are created in the milestone that first uses them (v1 has only `persona`); the table above
+is the plan. Times are stored as epoch milliseconds; mappers convert to `kotlin.time.Instant`.
+Region codes are ISO 3166-1 alpha-2 (the UK is `GB`).
+
+Persona-owned rows always carry `personaId`. Archive sets `archived_at`; nothing is deleted.
+The current persona is not a table: it is `current_persona_id` in `AppPreferences`.
+
+### Schema changes and migrations
+
+An app update must never wipe a persona, Watch later or History.
+
+- Never call `fallbackToDestructiveMigration`. A missing migration crashes on open instead,
+  which tests catch before release.
+- Every schema change bumps `version` in `FocusTubeDatabase`. Room exports each version's
+  schema to `app/schemas/<database class>/<version>.json` (Room Gradle plugin). These files are
+  committed and never edited; CI fails if a build changes or adds a schema file that isn't
+  committed.
+- Adding tables, or columns with a default: `AutoMigration(from = N - 1, to = N)`. Renames and
+  deletions: an `AutoMigrationSpec` (`@RenameColumn`, `@DeleteColumn`...). Anything that reshapes
+  data: a written `Migration` in `data/local/database/migrations/`.
+- `androidTest/.../MigrationTest` creates each old version from its schema file, inserts rows,
+  opens the database with the current code and checks the rows survived. Add a case per version.
+- Updates keep data only when signed with the same key, so the release keystore must be kept
+  forever (Milestone 8).
 
 ## YouTube Data API and quota
 

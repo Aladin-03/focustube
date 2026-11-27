@@ -39,6 +39,14 @@ jobs:
       - name: Format, lint, unit tests, build
         run: ./gradlew spotlessCheck lintDebug testDebugUnitTest assembleDebug
 
+      - name: Check Room schema files are committed and unchanged
+        run: |
+          if [ -n "$(git status --porcelain -- app/schemas)" ]; then
+            echo "::error::The build changed or added Room schema files. Bump the database version and commit the new schema; never edit an existing one."
+            git status --porcelain -- app/schemas
+            exit 1
+          fi
+
       - name: Upload debug APK
         uses: actions/upload-artifact@v7
         with:
