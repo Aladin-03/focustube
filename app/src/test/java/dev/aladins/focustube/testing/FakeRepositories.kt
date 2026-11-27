@@ -103,7 +103,7 @@ class FakeVideoRepository(initial: Map<String, Video> = emptyMap()) : VideoRepos
 
     var refreshCalls = 0
 
-    override suspend fun refreshStaleLibraryVideos(): AppResult<Unit> {
+    override suspend fun refreshStaleSavedVideos(): AppResult<Unit> {
         refreshCalls++
         return AppResult.Success(Unit)
     }

@@ -121,4 +121,44 @@ class MigrationTest {
             context.deleteDatabase(dbName)
         }
     }
+
+    @Test
+    fun version3To4KeepsEverything_andAddsTheChannelTables() = runTest {
+        helper.createDatabase(dbName, 3).apply {
+            execSQL(
+                "INSERT INTO persona (id, name, goal, regions, created_at, archived_at) VALUES (1, 'Guitar', 'Learn', 'US', 100, NULL)"
+            )
+            execSQL(
+                "INSERT INTO video (youtube_id, title, channel_id, channel_title, duration_sec, published_at, " +
+                    "view_count, is_short, description, thumbnail_url, fetched_at) " +
+                    "VALUES ('v1', 'Video', 'c1', 'Fred', 664, 0, 10, 0, '', NULL, 5)"
+            )
+            execSQL("INSERT INTO watch_later (persona_id, video_id, added_at) VALUES (1, 'v1', 7)")
+            execSQL(
+                "INSERT INTO history (persona_id, video_id, last_watched_at, position_sec, duration_sec, is_watched, " +
+                    "watched_at) VALUES (1, 'v1', 8, 400, 664, 1, 8)"
+            )
+            execSQL("INSERT INTO quota_log (pacific_date, units_used) VALUES ('2026-11-27', 202)")
+            close()
+        }
+        helper.runMigrationsAndValidate(dbName, 4, true).apply {
+            listOf("channel", "persona_channel", "channel_upload", "channel_search").forEach { table ->
+                query("SELECT COUNT(*) FROM $table").use {
+                    it.moveToFirst()
+                    assertEquals(0, it.getInt(0))
+                }
+            }
+            close()
+        }
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val database = Room.databaseBuilder(context, FocusTubeDatabase::class.java, dbName).build()
+        try {
+            assertEquals(listOf("v1"), database.watchLaterDao().observeIds(1).first())
+            assertEquals(true, database.historyDao().get(1, "v1")?.isWatched)
+            assertEquals(202L, database.quotaDao().unitsBlocking("2026-11-27"))
+        } finally {
+            database.close()
+            context.deleteDatabase(dbName)
+        }
+    }
 }

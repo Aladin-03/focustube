@@ -86,7 +86,7 @@ class AppNavigationTest {
     @Test
     fun fourTabsSwitch() {
         listOf(
-            R.string.tab_channels to R.string.placeholder_channels_title,
+            R.string.tab_channels to R.string.channels_tab_new_uploads,
             R.string.tab_search to R.string.search_idle_message,
             R.string.tab_library to R.string.library_tab_history,
             R.string.tab_picks to R.string.placeholder_picks_title

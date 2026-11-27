@@ -99,6 +99,6 @@ class LibraryDaosTest {
         assertNotNull(db.videoDao().get("saved"))
         assertNotNull(db.videoDao().get("watched"))
         assertNull(db.videoDao().get("unused"))
-        assertEquals(listOf("saved", "watched"), db.videoDao().libraryIdsFetchedBefore(2_000).sorted())
+        assertEquals(listOf("saved", "watched"), db.videoDao().keptIdsFetchedBefore(2_000).sorted())
     }
 }

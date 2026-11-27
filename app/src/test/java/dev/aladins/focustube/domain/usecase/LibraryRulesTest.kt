@@ -61,9 +61,9 @@ class LibraryRulesTest {
                 entry("b", "2026-11-26T18:31:00Z"), // 00:01 on the 27th in India
                 entry("c", "2026-11-27T10:00:00Z")
             )
-        val days = GroupHistoryByDayUseCase()(entries, zone)
+        val days = GroupByDayUseCase()(entries, zone) { it.lastWatchedAt }
         assertEquals(listOf(LocalDate.parse("2026-11-27"), LocalDate.parse("2026-11-26")), days.map { it.date })
-        assertEquals(listOf("c", "b"), days[0].entries.map { it.video.id })
-        assertEquals(listOf("a"), days[1].entries.map { it.video.id })
+        assertEquals(listOf("c", "b"), days[0].items.map { it.video.id })
+        assertEquals(listOf("a"), days[1].items.map { it.video.id })
     }
 }

@@ -11,6 +11,8 @@ import dev.aladins.focustube.domain.model.SearchKey
 import dev.aladins.focustube.domain.model.SearchMode
 import dev.aladins.focustube.domain.model.ShortsFilter
 import dev.aladins.focustube.domain.model.WatchProgress
+import dev.aladins.focustube.domain.usecase.ObserveLibraryMarksUseCase
+import dev.aladins.focustube.domain.usecase.ToggleWatchLaterUseCase
 import dev.aladins.focustube.testing.FakeHistoryRepository
 import dev.aladins.focustube.testing.FakePersonaRepository
 import dev.aladins.focustube.testing.FakeQuotaRepository
@@ -43,7 +45,14 @@ class SearchViewModelTest {
     private val watchLater = FakeWatchLaterRepository()
     private val history = FakeHistoryRepository()
     private val viewModel by lazy {
-        SearchViewModel(personas, searches, quota, FakeSettingsRepository(), watchLater, history)
+        SearchViewModel(
+            personas,
+            searches,
+            quota,
+            FakeSettingsRepository(),
+            ObserveLibraryMarksUseCase(watchLater, history),
+            ToggleWatchLaterUseCase(watchLater)
+        )
     }
 
     private fun type(text: String) {
@@ -156,10 +165,10 @@ class SearchViewModelTest {
             viewModel.onSearch()
             viewModel.onToggleWatchLater("v1")
             val state = expectMostRecentItem()
-            assertEquals(setOf("v1"), state.savedIds)
-            assertEquals(100L, state.progress["v2"]?.positionSeconds)
+            assertEquals(setOf("v1"), state.marks.savedIds)
+            assertEquals(100L, state.marks.progress["v2"]?.positionSeconds)
             viewModel.onToggleWatchLater("v1")
-            assertTrue(expectMostRecentItem().savedIds.isEmpty())
+            assertTrue(expectMostRecentItem().marks.savedIds.isEmpty())
         }
     }
 }

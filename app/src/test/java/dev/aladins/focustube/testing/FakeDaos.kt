@@ -53,10 +53,10 @@ class FakeVideoDao : VideoDao {
 
     override suspend fun get(id: String): VideoEntity? = rows.value[id]
 
-    /** Library ids (set by the test) for [libraryIdsFetchedBefore]. */
+    /** Library ids (set by the test) for [keptIdsFetchedBefore]. */
     var libraryIds: Set<String> = emptySet()
 
-    override suspend fun libraryIdsFetchedBefore(cutoff: Long): List<String> = rows.value.values.filter {
+    override suspend fun keptIdsFetchedBefore(cutoff: Long): List<String> = rows.value.values.filter {
         it.fetchedAt <
             cutoff &&
             it.youtubeId in libraryIds

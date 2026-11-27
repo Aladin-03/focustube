@@ -90,7 +90,7 @@ class FirstLaunchTest {
         waitForText(text(R.string.edit_persona_title_new))
         nameField().performTextInput("General")
         composeRule.onNodeWithText(text(R.string.action_create_persona)).performClick()
-        waitForText(text(R.string.placeholder_channels_title))
+        waitForText(text(R.string.channels_tab_new_uploads))
         composeRule.onNodeWithText(text(R.string.tab_channels)).assertIsSelected()
         composeRule.onNodeWithText("General").assertIsDisplayed()
 
@@ -106,7 +106,7 @@ class FirstLaunchTest {
         composeRule.onNodeWithContentDescription(text(R.string.personas_edit, "Guitar")).performClick()
         waitForText(text(R.string.action_archive_persona))
         composeRule.onNodeWithText(text(R.string.action_archive_persona)).performScrollTo().performClick()
-        waitForText(text(R.string.placeholder_channels_title))
+        waitForText(text(R.string.channels_tab_new_uploads))
         composeRule.onNodeWithText("General").assertIsDisplayed()
 
         // General is now the only active persona: it can't be archived.

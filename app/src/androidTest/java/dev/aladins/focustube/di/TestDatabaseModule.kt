@@ -7,6 +7,7 @@ import dagger.Provides
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import dagger.hilt.testing.TestInstallIn
+import dev.aladins.focustube.data.local.dao.ChannelDao
 import dev.aladins.focustube.data.local.dao.HistoryDao
 import dev.aladins.focustube.data.local.dao.PersonaDao
 import dev.aladins.focustube.data.local.dao.QuotaDao
@@ -42,4 +43,7 @@ object TestDatabaseModule {
 
     @Provides
     fun provideHistoryDao(database: FocusTubeDatabase): HistoryDao = database.historyDao()
+
+    @Provides
+    fun provideChannelDao(database: FocusTubeDatabase): ChannelDao = database.channelDao()
 }

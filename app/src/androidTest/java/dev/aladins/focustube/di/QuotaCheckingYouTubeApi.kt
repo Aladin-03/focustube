@@ -4,6 +4,8 @@ import dev.aladins.focustube.data.remote.quota.QuotaExceededException
 import dev.aladins.focustube.data.remote.quota.QuotaTracker
 import dev.aladins.focustube.data.remote.quota.YouTubeCosts
 import dev.aladins.focustube.data.remote.youtube.YouTubeApi
+import dev.aladins.focustube.data.remote.youtube.dto.ChannelListResponse
+import dev.aladins.focustube.data.remote.youtube.dto.PlaylistItemListResponse
 import dev.aladins.focustube.data.remote.youtube.dto.SearchListResponse
 import dev.aladins.focustube.data.remote.youtube.dto.VideoListResponse
 import dev.aladins.focustube.testing.FakeYouTubeApi
@@ -40,5 +42,36 @@ class QuotaCheckingYouTubeApi(private val fake: FakeYouTubeApi, private val trac
     override suspend fun videos(ids: String, part: String, maxHeight: Int): VideoListResponse {
         spend(YouTubeCosts.VIDEOS)
         return fake.videos(ids, part, maxHeight)
+    }
+
+    override suspend fun searchChannels(
+        query: String,
+        part: String,
+        type: String,
+        maxResults: Int
+    ): SearchListResponse {
+        spend(YouTubeCosts.SEARCH)
+        return fake.searchChannels(query, part, type, maxResults)
+    }
+
+    override suspend fun channels(
+        ids: String?,
+        handle: String?,
+        username: String?,
+        part: String,
+        maxResults: Int
+    ): ChannelListResponse {
+        spend(YouTubeCosts.VIDEOS)
+        return fake.channels(ids, handle, username, part, maxResults)
+    }
+
+    override suspend fun playlistItems(
+        playlistId: String,
+        pageToken: String?,
+        part: String,
+        maxResults: Int
+    ): PlaylistItemListResponse {
+        spend(YouTubeCosts.VIDEOS)
+        return fake.playlistItems(playlistId, pageToken, part, maxResults)
     }
 }

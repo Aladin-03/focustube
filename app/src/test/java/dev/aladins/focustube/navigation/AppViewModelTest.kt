@@ -3,6 +3,7 @@ package dev.aladins.focustube.navigation
 import dev.aladins.focustube.testing.FakePersonaRepository
 import dev.aladins.focustube.testing.FakeSearchRepository
 import dev.aladins.focustube.testing.MainDispatcherRule
+import dev.aladins.focustube.testing.fakeChannelRepository
 import dev.aladins.focustube.testing.persona
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -17,14 +18,14 @@ class AppViewModelTest {
     fun noPersonaNeedsWelcome() {
         assertEquals(
             AppUiState.NeedsWelcome,
-            AppViewModel(FakePersonaRepository(), FakeSearchRepository()).uiState.value
+            AppViewModel(FakePersonaRepository(), FakeSearchRepository(), fakeChannelRepository()).uiState.value
         )
     }
 
     @Test
     fun readyWithCurrentPersona_andFollowsSwitches() = runTest {
         val repo = FakePersonaRepository(listOf(persona(1, "Guitar"), persona(2, "General")), currentId = 2)
-        val vm = AppViewModel(repo, FakeSearchRepository())
+        val vm = AppViewModel(repo, FakeSearchRepository(), fakeChannelRepository())
         assertEquals("General", (vm.uiState.value as AppUiState.Ready).persona.name)
         repo.setCurrent(1)
         assertEquals("Guitar", (vm.uiState.value as AppUiState.Ready).persona.name)

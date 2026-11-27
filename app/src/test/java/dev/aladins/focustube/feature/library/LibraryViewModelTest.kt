@@ -2,7 +2,7 @@ package dev.aladins.focustube.feature.library
 
 import app.cash.turbine.test
 import dev.aladins.focustube.domain.model.WatchProgress
-import dev.aladins.focustube.domain.usecase.GroupHistoryByDayUseCase
+import dev.aladins.focustube.domain.usecase.GroupByDayUseCase
 import dev.aladins.focustube.testing.FakeHistoryRepository
 import dev.aladins.focustube.testing.FakePersonaRepository
 import dev.aladins.focustube.testing.FakeVideoRepository
@@ -33,7 +33,7 @@ class LibraryViewModelTest {
     }
 
     private fun viewModel() =
-        LibraryViewModel(personas, watchLater, history, videos, GroupHistoryByDayUseCase(), clock, ZoneId.of("UTC"))
+        LibraryViewModel(personas, watchLater, history, videos, GroupByDayUseCase(), clock, ZoneId.of("UTC"))
 
     @Test
     fun showsOnlyTheCurrentPersonasLibrary_andRefreshesOnce() = runTest {
@@ -53,7 +53,7 @@ class LibraryViewModelTest {
                     it.date
                 }
             )
-            assertEquals(listOf("a"), state.historyDays[0].entries.map { it.video.id })
+            assertEquals(listOf("a"), state.historyDays[0].items.map { it.video.id })
             assertEquals(LocalDate.parse("2026-11-27"), state.today)
             assertEquals(1_328L, state.watchLaterTotalSeconds)
         }
@@ -85,7 +85,7 @@ class LibraryViewModelTest {
         history.save(2, "z", WatchProgress(100, 664, false), Instant.parse("2026-11-27T09:00:00Z"))
         val vm = viewModel()
         vm.uiState.test {
-            val entry = expectMostRecentItem().historyDays.single().entries.single()
+            val entry = expectMostRecentItem().historyDays.single().items.single()
             vm.onRemoveFromHistory(entry)
             assertTrue(expectMostRecentItem().historyDays.isEmpty())
             vm.onUndo()

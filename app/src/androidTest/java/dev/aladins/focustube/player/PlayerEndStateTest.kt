@@ -57,7 +57,8 @@ class PlayerEndStateTest {
                                 state = state.copy(hasEnded = false)
                             },
                             onUnplayable = {},
-                            onToggleWatchLater = {}
+                            onToggleWatchLater = {},
+                            onOpenChannel = {}
                         )
                 )
             }

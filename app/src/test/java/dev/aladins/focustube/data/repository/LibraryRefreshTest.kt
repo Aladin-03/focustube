@@ -57,18 +57,18 @@ class LibraryRefreshTest {
         )
         dao.libraryIds = setOf("lib-old", "lib-new")
 
-        repository.refreshStaleLibraryVideos()
+        repository.refreshStaleSavedVideos()
         assertEquals(1, api.videosCalls)
         assertEquals(now.toEpochMilliseconds(), dao.get("lib-old")!!.fetchedAt)
         assertEquals(old.toEpochMilliseconds(), dao.get("search-only-old")!!.fetchedAt)
 
         now += 2.hours
         dao.upsertAll(listOf(FakeYouTubeApi.videoDto("lib-old").toEntity(old)))
-        repository.refreshStaleLibraryVideos()
+        repository.refreshStaleSavedVideos()
         assertEquals(1, api.videosCalls) // same day: skipped
 
         now += 1.days
-        repository.refreshStaleLibraryVideos()
+        repository.refreshStaleSavedVideos()
         assertEquals(2, api.videosCalls)
     }
 }
