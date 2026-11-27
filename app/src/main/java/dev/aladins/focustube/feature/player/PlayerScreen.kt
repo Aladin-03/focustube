@@ -113,6 +113,8 @@ fun PlayerScreen(
                     Box(playerModifier) {
                         EmbeddedYouTubePlayer(
                             videoId = state.videoId,
+                            startSeconds = state.positionSeconds,
+                            startPlaying = !state.hasEnded,
                             onProgress = onProgress,
                             onEnded = onEnded,
                             onUnplayable = onUnplayable,
@@ -275,6 +277,7 @@ private fun UnplayableState() {
 @Composable
 private fun DescriptionCard(description: String) {
     var expanded by rememberSaveable { mutableStateOf(false) }
+    var cutOff by remember { mutableStateOf(false) }
     Surface(
         shape = FocusTubeTheme.shapes.card,
         color = MaterialTheme.colorScheme.surface,
@@ -291,12 +294,16 @@ private fun DescriptionCard(description: String) {
                 text = description,
                 style = FocusTubeTheme.typography.body,
                 color = MaterialTheme.colorScheme.onSurface,
-                maxLines = if (expanded) Int.MAX_VALUE else 3
+                maxLines = if (expanded) Int.MAX_VALUE else 3,
+                onTextLayout = { if (!expanded) cutOff = it.hasVisualOverflow }
             )
-            FtTextButton(
-                text = stringResource(if (expanded) R.string.action_show_less else R.string.action_show_more),
-                onClick = { expanded = !expanded }
-            )
+            // Only offer "Show more" when the description is actually cut off.
+            if (cutOff || expanded) {
+                FtTextButton(
+                    text = stringResource(if (expanded) R.string.action_show_less else R.string.action_show_more),
+                    onClick = { expanded = !expanded }
+                )
+            }
         }
     }
 }

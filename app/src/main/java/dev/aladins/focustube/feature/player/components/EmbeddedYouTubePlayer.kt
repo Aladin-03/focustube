@@ -20,10 +20,14 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTube
  * goes full screen. The tapped video starts playing at once.
  *
  * Size it with [modifier]; it fills it. [onPlayer] hands out the player once it's ready (Replay).
+ * When the view is recreated (e.g. a theme change), playback resumes at [startSeconds]; if
+ * [startPlaying] is false (the video had ended) it is only loaded, so nothing plays hidden.
  */
 @Composable
 fun EmbeddedYouTubePlayer(
     videoId: String,
+    startSeconds: Float,
+    startPlaying: Boolean,
     onProgress: (Float) -> Unit,
     onEnded: () -> Unit,
     onUnplayable: () -> Unit,
@@ -51,13 +55,16 @@ fun EmbeddedYouTubePlayer(
                         .rel(0)
                         .ivLoadPolicy(3)
                         .fullscreen(0)
-                        .autoplay(1)
                         .build()
                 initialize(
                     object : AbstractYouTubePlayerListener() {
                         override fun onReady(youTubePlayer: YouTubePlayer) {
                             ready(youTubePlayer)
-                            youTubePlayer.loadVideo(videoId, 0f)
+                            if (startPlaying) {
+                                youTubePlayer.loadVideo(videoId, startSeconds)
+                            } else {
+                                youTubePlayer.cueVideo(videoId, startSeconds)
+                            }
                         }
 
                         override fun onStateChange(youTubePlayer: YouTubePlayer, state: PlayerConstants.PlayerState) {
