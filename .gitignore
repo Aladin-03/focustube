@@ -1,0 +1,32 @@
+# Secrets: never commit
+local.properties
+*.jks
+*.keystore
+keystore.properties
+.env
+.env.*
+
+# Gradle and build outputs
+.gradle/
+.kotlin/
+build/
+**/build/
+captures/
+*.apk
+*.aab
+*.ap_
+*.dex
+output-metadata.json
+
+# Test screenshots taken on the phone
+/screenshots/
+
+# IDE
+.idea/
+!.idea/codeStyles/
+*.iml
+.externalNativeBuild/
+.cxx/
+
+# OS
+.DS_Store
