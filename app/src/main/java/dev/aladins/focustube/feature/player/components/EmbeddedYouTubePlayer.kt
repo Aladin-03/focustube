@@ -29,6 +29,7 @@ fun EmbeddedYouTubePlayer(
     startSeconds: Float,
     startPlaying: Boolean,
     onProgress: (Float) -> Unit,
+    onPaused: () -> Unit,
     onEnded: () -> Unit,
     onUnplayable: () -> Unit,
     onPlayer: (YouTubePlayer) -> Unit,
@@ -36,6 +37,7 @@ fun EmbeddedYouTubePlayer(
 ) {
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val progress by rememberUpdatedState(onProgress)
+    val paused by rememberUpdatedState(onPaused)
     val ended by rememberUpdatedState(onEnded)
     val unplayable by rememberUpdatedState(onUnplayable)
     val ready by rememberUpdatedState(onPlayer)
@@ -68,7 +70,11 @@ fun EmbeddedYouTubePlayer(
                         }
 
                         override fun onStateChange(youTubePlayer: YouTubePlayer, state: PlayerConstants.PlayerState) {
-                            if (state == PlayerConstants.PlayerState.ENDED) ended()
+                            when (state) {
+                                PlayerConstants.PlayerState.ENDED -> ended()
+                                PlayerConstants.PlayerState.PAUSED -> paused()
+                                else -> Unit
+                            }
                         }
 
                         override fun onCurrentSecond(youTubePlayer: YouTubePlayer, second: Float) = progress(second)

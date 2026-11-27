@@ -61,26 +61,19 @@ import dev.aladins.focustube.core.designsystem.theme.FocusTubeTheme
 import dev.aladins.focustube.core.ui.errorText
 import dev.aladins.focustube.core.ui.videoMetaText
 import dev.aladins.focustube.feature.player.components.EmbeddedYouTubePlayer
+import dev.aladins.focustube.feature.player.components.WatchLaterAction
 import kotlin.time.Clock
 
 /**
  * Player (14) and Short (15): back, "Watching as [persona]", the embedded player (16:9, or 9:16
  * for a Short), title, meta, description and the end mark. When the video ends, FocusTube's own
  * end state covers the player. Landscape (or the full-screen button) shows only the player.
- * Thumbs, Watch later and Channel arrive with Milestones 4-6.
+ * Actions: Watch later (thumbs and Channel arrive with Milestones 6 and 5).
  *
  * The player view stays in one place in the layout so rotating never restarts the video.
  */
 @Composable
-fun PlayerScreen(
-    state: PlayerUiState,
-    onBack: () -> Unit,
-    onProgress: (Float) -> Unit,
-    onEnded: () -> Unit,
-    onReplay: () -> Unit,
-    onUnplayable: () -> Unit,
-    modifier: Modifier = Modifier
-) {
+fun PlayerScreen(state: PlayerUiState, actions: PlayerActions, modifier: Modifier = Modifier) {
     val landscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
     var forcedFullscreen by rememberSaveable { mutableStateOf(false) }
     val fullscreen = (landscape || forcedFullscreen) && !state.isShort && state.video != null
@@ -96,7 +89,7 @@ fun PlayerScreen(
                 .background(if (fullscreen) Color.Black else MaterialTheme.colorScheme.background)
                 .then(if (fullscreen) Modifier else Modifier.windowInsetsPadding(WindowInsets.safeDrawing))
     ) {
-        if (!fullscreen) PlayerHeader(personaName = state.personaName, onBack = onBack)
+        if (!fullscreen) PlayerHeader(personaName = state.personaName, onBack = actions.onBack)
 
         when {
             video != null ->
@@ -115,16 +108,17 @@ fun PlayerScreen(
                             videoId = state.videoId,
                             startSeconds = state.positionSeconds,
                             startPlaying = !state.hasEnded,
-                            onProgress = onProgress,
-                            onEnded = onEnded,
-                            onUnplayable = onUnplayable,
+                            onProgress = actions.onProgress,
+                            onPaused = actions.onPaused,
+                            onEnded = actions.onEnded,
+                            onUnplayable = actions.onUnplayable,
                             onPlayer = { player = it },
                             modifier = Modifier.fillMaxSize()
                         )
                         if (state.hasEnded) {
                             EndState(
                                 onReplay = {
-                                    onReplay()
+                                    actions.onReplay()
                                     player?.seekTo(0f)
                                     player?.play()
                                 }
@@ -190,6 +184,7 @@ fun PlayerScreen(
                         }
                     }
                 }
+                WatchLaterAction(isSaved = state.isInWatchLater, onToggle = actions.onToggleWatchLater)
                 Spacer(Modifier.height(FocusTubeTheme.spacing.md))
                 if (video.description.isNotBlank()) DescriptionCard(video.description)
                 Text(

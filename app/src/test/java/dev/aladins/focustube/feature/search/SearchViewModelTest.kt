@@ -10,10 +10,13 @@ import dev.aladins.focustube.domain.model.Region
 import dev.aladins.focustube.domain.model.SearchKey
 import dev.aladins.focustube.domain.model.SearchMode
 import dev.aladins.focustube.domain.model.ShortsFilter
+import dev.aladins.focustube.domain.model.WatchProgress
+import dev.aladins.focustube.testing.FakeHistoryRepository
 import dev.aladins.focustube.testing.FakePersonaRepository
 import dev.aladins.focustube.testing.FakeQuotaRepository
 import dev.aladins.focustube.testing.FakeSearchRepository
 import dev.aladins.focustube.testing.FakeSettingsRepository
+import dev.aladins.focustube.testing.FakeWatchLaterRepository
 import dev.aladins.focustube.testing.MainDispatcherRule
 import dev.aladins.focustube.testing.persona
 import dev.aladins.focustube.testing.video
@@ -37,7 +40,11 @@ class SearchViewModelTest {
             listOf(video("v1"), video("s1", isShort = true), video("v2"))
     }
     private val quota = FakeQuotaRepository()
-    private val viewModel by lazy { SearchViewModel(personas, searches, quota, FakeSettingsRepository()) }
+    private val watchLater = FakeWatchLaterRepository()
+    private val history = FakeHistoryRepository()
+    private val viewModel by lazy {
+        SearchViewModel(personas, searches, quota, FakeSettingsRepository(), watchLater, history)
+    }
 
     private fun type(text: String) {
         viewModel.query.setTextAndPlaceCursorAtEnd(text)
@@ -138,6 +145,21 @@ class SearchViewModelTest {
             assertEquals("fingerstyle basics", expectMostRecentItem().submittedQuery)
             type("")
             assertNull(expectMostRecentItem().submittedQuery)
+        }
+    }
+
+    @Test
+    fun bookmarkTogglesWatchLater_andRowsGetProgress() = runTest {
+        history.save(1, "v2", WatchProgress(100, 664, false), Instant.fromEpochMilliseconds(5))
+        viewModel.uiState.test {
+            type("fingerstyle basics")
+            viewModel.onSearch()
+            viewModel.onToggleWatchLater("v1")
+            val state = expectMostRecentItem()
+            assertEquals(setOf("v1"), state.savedIds)
+            assertEquals(100L, state.progress["v2"]?.positionSeconds)
+            viewModel.onToggleWatchLater("v1")
+            assertTrue(expectMostRecentItem().savedIds.isEmpty())
         }
     }
 }

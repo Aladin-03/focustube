@@ -50,6 +50,7 @@ import dev.aladins.focustube.core.designsystem.components.regionSummary
 import dev.aladins.focustube.core.designsystem.icons.FocusTubeIcons
 import dev.aladins.focustube.core.designsystem.theme.FocusTubeTheme
 import dev.aladins.focustube.core.ui.RegionSheet
+import dev.aladins.focustube.core.ui.WatchLaterButton
 import dev.aladins.focustube.core.ui.elapsedText
 import dev.aladins.focustube.core.ui.errorText
 import dev.aladins.focustube.core.ui.videoMetaText
@@ -68,7 +69,8 @@ data class SearchActions(
     val onRecentClick: (RecentSearch) -> Unit,
     val onRecentRemove: (RecentSearch) -> Unit,
     val onRegionsApply: (List<Region>) -> Unit,
-    val onOpenVideo: (String) -> Unit
+    val onOpenVideo: (String) -> Unit,
+    val onToggleWatchLater: (String) -> Unit
 )
 
 /**
@@ -232,6 +234,13 @@ fun SearchScreen(state: SearchUiState, query: TextFieldState, actions: SearchAct
                                 thumbnailUrl = video.thumbnailUrl,
                                 durationSeconds = video.durationSeconds,
                                 onClick = { actions.onOpenVideo(video.id) },
+                                progress = state.progress[video.id]?.fraction?.takeIf { it > 0f },
+                                trailing = {
+                                    WatchLaterButton(
+                                        isSaved = video.id in state.savedIds,
+                                        onToggle = { actions.onToggleWatchLater(video.id) }
+                                    )
+                                },
                                 tags = {
                                     if (video.isShort && state.filter == ShortsFilter.All) {
                                         Tag(text = stringResource(R.string.tag_short), style = TagStyle.Short)
