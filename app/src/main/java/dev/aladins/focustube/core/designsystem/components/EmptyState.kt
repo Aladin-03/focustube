@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -84,9 +83,7 @@ fun EmptyState(
         }
         if (linkLabel != null && onLink != null) {
             Spacer(Modifier.height(spacing.sm))
-            TextButton(onClick = onLink) {
-                Text(text = linkLabel, style = FocusTubeTheme.typography.button)
-            }
+            FtTextButton(text = linkLabel, onClick = onLink)
         }
     }
 }
