@@ -176,8 +176,8 @@ fun SearchScreen(state: SearchUiState, query: TextFieldState, actions: SearchAct
                                 text =
                                     pluralStringResource(
                                         R.plurals.search_results_saved,
-                                        saved.videos.size,
-                                        saved.videos.size,
+                                        state.visibleVideos.size,
+                                        state.visibleVideos.size,
                                         elapsedText(saved.savedAt, now)
                                     ),
                                 onRefresh = actions.onRefresh,

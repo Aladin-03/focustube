@@ -16,6 +16,7 @@ import kotlinx.coroutines.launch
  *
  *   adb shell am broadcast -n dev.aladins.focustube/.debug.DebugQuotaReceiver --es state exhausted
  *   adb shell am broadcast -n dev.aladins.focustube/.debug.DebugQuotaReceiver --es state reset
+ *   adb shell am broadcast -n dev.aladins.focustube/.debug.DebugQuotaReceiver --es state reset --el units 505
  */
 @AndroidEntryPoint
 class DebugQuotaReceiver : BroadcastReceiver() {
@@ -28,7 +29,7 @@ class DebugQuotaReceiver : BroadcastReceiver() {
             try {
                 when (state) {
                     "exhausted" -> tracker.setTodayForDebugBlocking(QuotaTracker.DAILY_LIMIT)
-                    "reset" -> tracker.setTodayForDebugBlocking(0)
+                    "reset" -> tracker.setTodayForDebugBlocking(intent.getLongExtra("units", 0))
                     else -> Log.w(TAG, "Unknown state: $state (use exhausted or reset)")
                 }
                 Log.i(TAG, "Quota state set: $state")
