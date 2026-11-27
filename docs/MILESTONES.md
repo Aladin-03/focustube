@@ -10,7 +10,7 @@ Status: update this table as milestones finish.
 | 1 | Foundation | Done |
 | 2 | Personas | Done |
 | 3 | Classic search and player | Done |
-| 4 | Library | In review |
+| 4 | Library | Done |
 | 5 | My channels | Not started |
 | 6 | AI picks | Not started |
 | 7 | AI search | Not started |

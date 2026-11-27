@@ -19,7 +19,12 @@ data class FocusTubeColors(
     /** Unfilled bars of the level meter. */
     val meterOff: Color,
     /** Background of the duration badge on thumbnails. */
-    val videoScrim: Color
+    val videoScrim: Color,
+    /**
+     * 1 dp outline of the selected SegmentedTabs option, or [Color.Unspecified] for none. Dark
+     * theme only: there, surface is barely distinct from the surface2 track (needs 3:1).
+     */
+    val segmentSelectedOutline: Color
 )
 
 internal val LightFocusTubeColors =
@@ -28,7 +33,8 @@ internal val LightFocusTubeColors =
         amberInk = AmberInkLight,
         amberTagInk = AmberTagInkLight,
         meterOff = MeterOffLight,
-        videoScrim = VideoScrim
+        videoScrim = VideoScrim,
+        segmentSelectedOutline = Color.Unspecified
     )
 
 internal val DarkFocusTubeColors =
@@ -37,7 +43,8 @@ internal val DarkFocusTubeColors =
         amberInk = AmberInkDark,
         amberTagInk = AmberTagInkDark,
         meterOff = MeterOffDark,
-        videoScrim = VideoScrim
+        videoScrim = VideoScrim,
+        segmentSelectedOutline = MutedDark
     )
 
 internal val LocalFocusTubeColors = staticCompositionLocalOf { LightFocusTubeColors }

@@ -81,4 +81,18 @@ class ContrastTest {
         AmberInkDark,
         AmberTagInkDark
     )
+
+    /**
+     * Non-text UI (WCAG 1.4.11, 3:1): in dark theme the selected SegmentedTabs option must stand
+     * out from the surface2 track. Its fill (surface) alone doesn't, so its outline must.
+     */
+    @Test
+    fun darkSelectedSegmentOutlineStandsOutFromTrack() {
+        val ratio = contrast(DarkFocusTubeColors.segmentSelectedOutline, Surface2Dark)
+        assertTrue("dark segment outline on surface2 is %.2f:1, needs 3:1".format(ratio), ratio >= 3.0)
+        assertTrue(
+            "dark surface alone on surface2 is too close to stand out",
+            contrast(SurfaceDark, Surface2Dark) < 3.0
+        )
+    }
 }

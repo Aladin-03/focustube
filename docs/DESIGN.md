@@ -65,7 +65,7 @@ Build each once, use everywhere.
 | `FtBottomBar` / `FtNavRail` | Four tabs: Picks (sparkle), Channels (screen), Search (magnifier), Library (bookmark). Active = icon inside a pineSoft pill + ink bold label. Rail on wide screens. |
 | `PrimaryButton`, `SecondaryButton` | Filled pine / outlined line. Fully rounded. |
 | `RegionChip` | Globe icon + "US, UK, DE +4". Opens the region sheet. |
-| `SegmentedTabs` | Two options in a surface2 track; selected option on surface with a light shadow. Used for New uploads / Channels, Watch later / History, AI / Classic. |
+| `SegmentedTabs` | Two options in a surface2 track; selected option on surface with a light shadow. In dark theme the selected option also gets a 1 dp muted (`#9BA9A2`) outline, because surface alone is too close to the track (needs 3:1 for non-text UI; checked in ContrastTest). Used for New uploads / Channels, Watch later / History, AI / Classic. |
 | `LevelMeter` | Three small rising bars (4×7, 4×10, 4×13 dp) + level word. Filled bars in pine, the rest meterOff. Beginner = 1, Intermediate = 2, Advanced = 3. |
 | `Tag` | Small uppercase label, 6 dp corners: "New voice" (amber), "Short" (surface2 / muted), "Your channel" (pineSoft / pine), "Coming later". "Watched" (pineSoft / pine) marks a watched video in the Library. |
 | `Thumbnail` | Rounded image with duration badge (mono, videoScrim) and optional progress bar (pine) along the bottom. |

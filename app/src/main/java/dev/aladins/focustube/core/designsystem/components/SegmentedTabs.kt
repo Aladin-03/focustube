@@ -1,5 +1,6 @@
 package dev.aladins.focustube.core.designsystem.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -15,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.PreviewLightDark
@@ -23,7 +25,7 @@ import dev.aladins.focustube.core.designsystem.theme.FocusTubeTheme
 
 /**
  * Two (or more) options in a surface2 track; the selected one sits on surface with a light
- * shadow. Used for Watch later / History, New uploads / Channels, AI / Classic.
+ * shadow, plus a 1 dp muted outline in dark theme (where surface alone is too close to the track). Used for Watch later / History, New uploads / Channels, AI / Classic.
  */
 @Composable
 fun SegmentedTabs(options: List<String>, selectedIndex: Int, onSelect: (Int) -> Unit, modifier: Modifier = Modifier) {
@@ -42,6 +44,9 @@ fun SegmentedTabs(options: List<String>, selectedIndex: Int, onSelect: (Int) -> 
                 shape = FocusTubeTheme.shapes.pill,
                 color = if (selected) scheme.surface else Color.Transparent,
                 shadowElevation = if (selected) 1.dp else 0.dp,
+                border = FocusTubeTheme.colors.segmentSelectedOutline.takeIf {
+                    selected && it.isSpecified
+                }?.let { BorderStroke(1.dp, it) },
                 modifier =
                     Modifier
                         .weight(1f)
