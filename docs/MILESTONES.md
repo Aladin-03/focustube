@@ -7,7 +7,7 @@ Status: update this table as milestones finish.
 
 | # | Milestone | Status |
 | --- | --- | --- |
-| 1 | Foundation | Not started |
+| 1 | Foundation | Done |
 | 2 | Personas | Not started |
 | 3 | Classic search and player | Not started |
 | 4 | Library | Not started |
