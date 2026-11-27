@@ -10,7 +10,7 @@ data class SearchListResponse(val items: List<SearchItem> = emptyList(), val nex
 data class SearchItem(val id: SearchItemId)
 
 @Serializable
-data class SearchItemId(val videoId: String? = null)
+data class SearchItemId(val videoId: String? = null, val channelId: String? = null)
 
 /** videos.list (part=snippet,contentDetails,statistics,player). */
 @Serializable
@@ -78,3 +78,49 @@ data class YouTubeErrorItem(val reason: String = "")
 
 @Serializable
 data class YouTubeErrorDetail(val reason: String = "")
+
+/** channels.list (part=snippet,statistics,contentDetails). */
+@Serializable
+data class ChannelListResponse(val items: List<ChannelDto> = emptyList())
+
+@Serializable
+data class ChannelDto(
+    val id: String,
+    val snippet: ChannelSnippet,
+    val statistics: ChannelStatistics? = null,
+    val contentDetails: ChannelContentDetails? = null
+)
+
+@Serializable
+data class ChannelSnippet(
+    val title: String,
+    /** "@fingerstylefred". */
+    val customUrl: String? = null,
+    val thumbnails: Thumbnails? = null
+)
+
+@Serializable
+data class ChannelStatistics(
+    val subscriberCount: String? = null,
+    val hiddenSubscriberCount: Boolean = false,
+    val videoCount: String? = null
+)
+
+@Serializable
+data class ChannelContentDetails(val relatedPlaylists: RelatedPlaylists? = null)
+
+@Serializable
+data class RelatedPlaylists(
+    /** The channel's uploads playlist ("UU…"). */
+    val uploads: String? = null
+)
+
+/** playlistItems.list (part=contentDetails) on an uploads playlist: newest first. */
+@Serializable
+data class PlaylistItemListResponse(val items: List<PlaylistItem> = emptyList(), val nextPageToken: String? = null)
+
+@Serializable
+data class PlaylistItem(val contentDetails: PlaylistItemDetails)
+
+@Serializable
+data class PlaylistItemDetails(val videoId: String, val videoPublishedAt: String? = null)

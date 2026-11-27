@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.aladins.focustube.domain.model.Persona
+import dev.aladins.focustube.domain.repository.ChannelRepository
 import dev.aladins.focustube.domain.repository.PersonaRepository
 import dev.aladins.focustube.domain.repository.SearchRepository
 import javax.inject.Inject
@@ -27,10 +28,14 @@ sealed interface AppUiState {
 
 /**
  * Activity-level state: which persona is current, or whether Welcome is needed. On start it also
- * drops saved searches older than 30 days (YouTube API policy).
+ * drops saved searches and unfollowed channels older than 30 days (YouTube API policy).
  */
 @HiltViewModel
-class AppViewModel @Inject constructor(repository: PersonaRepository, searches: SearchRepository) : ViewModel() {
+class AppViewModel @Inject constructor(
+    repository: PersonaRepository,
+    searches: SearchRepository,
+    channels: ChannelRepository
+) : ViewModel() {
     val uiState: StateFlow<AppUiState> =
         repository
             .observeCurrent()
@@ -38,6 +43,9 @@ class AppViewModel @Inject constructor(repository: PersonaRepository, searches: 
             .stateIn(viewModelScope, SharingStarted.Eagerly, AppUiState.Loading)
 
     init {
-        viewModelScope.launch { searches.removeStale() }
+        viewModelScope.launch {
+            searches.removeStale()
+            channels.removeStale()
+        }
     }
 }

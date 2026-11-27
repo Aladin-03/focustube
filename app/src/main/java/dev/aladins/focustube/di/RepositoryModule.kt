@@ -6,6 +6,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import dev.aladins.focustube.data.local.database.RoomTransactionRunner
 import dev.aladins.focustube.data.local.database.TransactionRunner
+import dev.aladins.focustube.data.repository.DefaultChannelRepository
 import dev.aladins.focustube.data.repository.DefaultHistoryRepository
 import dev.aladins.focustube.data.repository.DefaultPersonaRepository
 import dev.aladins.focustube.data.repository.DefaultQuotaRepository
@@ -13,6 +14,7 @@ import dev.aladins.focustube.data.repository.DefaultSearchRepository
 import dev.aladins.focustube.data.repository.DefaultSettingsRepository
 import dev.aladins.focustube.data.repository.DefaultVideoRepository
 import dev.aladins.focustube.data.repository.DefaultWatchLaterRepository
+import dev.aladins.focustube.domain.repository.ChannelRepository
 import dev.aladins.focustube.domain.repository.HistoryRepository
 import dev.aladins.focustube.domain.repository.PersonaRepository
 import dev.aladins.focustube.domain.repository.QuotaRepository
@@ -48,4 +50,7 @@ interface RepositoryModule {
 
     @Binds
     fun bindHistoryRepository(impl: DefaultHistoryRepository): HistoryRepository
+
+    @Binds
+    fun bindChannelRepository(impl: DefaultChannelRepository): ChannelRepository
 }

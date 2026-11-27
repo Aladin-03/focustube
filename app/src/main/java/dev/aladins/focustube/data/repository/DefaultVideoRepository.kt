@@ -43,7 +43,7 @@ class DefaultVideoRepository @Inject constructor(
         }
     }
 
-    override suspend fun refreshStaleLibraryVideos(): AppResult<Unit> {
+    override suspend fun refreshStaleSavedVideos(): AppResult<Unit> {
         val now = clock.now()
         val last = preferences.libraryRefreshedAt.first()
         if (last != null &&
@@ -52,7 +52,7 @@ class DefaultVideoRepository @Inject constructor(
             return AppResult.Success(Unit)
         }
 
-        val ids = dao.libraryIdsFetchedBefore((now - 30.days).toEpochMilliseconds())
+        val ids = dao.keptIdsFetchedBefore((now - 30.days).toEpochMilliseconds())
         if (ids.isNotEmpty()) {
             when (val result = youTube.videos(ids)) {
                 is AppResult.Failure -> return result
