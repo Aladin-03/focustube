@@ -112,6 +112,16 @@ class SearchFlowTest {
     }
 
     @Test
+    fun dailyLimitOnAnUnsavedSearchSaysWhatToDo_andCallsNothing() {
+        quota.setTodayForDebugBlocking(QuotaTracker.DAILY_LIMIT)
+        search("travis picking")
+        waitFor(hasText(text(R.string.search_limit_unsaved_message)))
+        composeRule.onNodeWithText(text(R.string.limit_title)).assertIsDisplayed()
+        composeRule.onNodeWithText(text(R.string.search_limit_unsaved_title)).assertIsDisplayed()
+        assertEquals(0, api.searchCalls)
+    }
+
+    @Test
     fun regionSheetChangesThePersonasRegions() {
         composeRule.onNode(hasContentDescription(text(R.string.regions_chip_description, "US, UK, DE"))).performClick()
         waitFor(hasText(text(R.string.regions_title)))

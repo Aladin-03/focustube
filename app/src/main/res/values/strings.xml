@@ -105,6 +105,8 @@
     <string name="search_idle_message">Results are saved on this phone, so the same search again costs nothing.</string>
     <string name="search_empty_title">No videos found</string>
     <string name="search_empty_message">Try other words or other regions.</string>
+    <string name="search_limit_unsaved_title">This search isn\'t saved</string>
+    <string name="search_limit_unsaved_message">Try again after midnight Pacific, or open a saved search.</string>
     <string name="search_no_shorts">No Shorts in these results.</string>
     <string name="search_no_videos">Only Shorts in these results.</string>
 

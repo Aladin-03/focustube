@@ -160,6 +160,14 @@ fun SearchScreen(state: SearchUiState, query: TextFieldState, actions: SearchAct
                     )
                 }
 
+                // Daily limit reached on a search that isn't saved: the banner explains why; this says what to do.
+                saved == null && error == AppError.QuotaExceeded ->
+                    EmptyState(
+                        title = stringResource(R.string.search_limit_unsaved_title),
+                        message = stringResource(R.string.search_limit_unsaved_message),
+                        icon = FocusTubeIcons.Clock
+                    )
+
                 saved == null -> Unit
 
                 saved.videos.isEmpty() ->
