@@ -1,8 +1,8 @@
 package dev.aladins.focustube.feature.player
 
-import android.app.Activity
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -40,7 +40,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -305,7 +304,7 @@ private fun DescriptionCard(description: String) {
 /** Full screen: hides system bars; the button version also locks landscape. Undone on leave. */
 @Composable
 private fun FullscreenEffects(fullscreen: Boolean, forceLandscape: Boolean) {
-    val activity = LocalContext.current as? Activity ?: return
+    val activity = LocalActivity.current ?: return
     val view = LocalView.current
     DisposableEffect(fullscreen, forceLandscape) {
         val controller = WindowCompat.getInsetsController(activity.window, view)
