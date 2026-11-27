@@ -1,6 +1,5 @@
 package dev.aladins.focustube.domain.model
 
-import java.time.LocalDate
 import kotlin.time.Instant
 
 /** How far a persona got in a video. */
@@ -29,6 +28,3 @@ data class WatchLaterItem(
 
 /** A video in a persona's History (one entry per video; re-watching updates it). */
 data class HistoryEntry(val video: Video, val lastWatchedAt: Instant, val progress: WatchProgress)
-
-/** History entries of one calendar day, newest first. */
-data class HistoryDay(val date: LocalDate, val entries: List<HistoryEntry>)

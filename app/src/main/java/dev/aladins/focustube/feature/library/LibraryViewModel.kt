@@ -9,7 +9,7 @@ import dev.aladins.focustube.domain.repository.HistoryRepository
 import dev.aladins.focustube.domain.repository.PersonaRepository
 import dev.aladins.focustube.domain.repository.VideoRepository
 import dev.aladins.focustube.domain.repository.WatchLaterRepository
-import dev.aladins.focustube.domain.usecase.GroupHistoryByDayUseCase
+import dev.aladins.focustube.domain.usecase.GroupByDayUseCase
 import java.time.ZoneId
 import javax.inject.Inject
 import kotlin.time.Clock
@@ -37,7 +37,7 @@ class LibraryViewModel @Inject constructor(
     private val watchLater: WatchLaterRepository,
     private val history: HistoryRepository,
     videos: VideoRepository,
-    groupByDay: GroupHistoryByDayUseCase,
+    groupByDay: GroupByDayUseCase,
     clock: Clock,
     zone: ZoneId
 ) : ViewModel() {
@@ -52,7 +52,7 @@ class LibraryViewModel @Inject constructor(
                     personaName = persona.name,
                     tab = t,
                     watchLater = saved,
-                    historyDays = groupByDay(watched, zone),
+                    historyDays = groupByDay(watched, zone) { it.lastWatchedAt },
                     today = clock.now().toJavaInstant().atZone(zone).toLocalDate(),
                     undo = u
                 )
@@ -60,7 +60,7 @@ class LibraryViewModel @Inject constructor(
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS), LibraryUiState())
 
     init {
-        viewModelScope.launch { videos.refreshStaleLibraryVideos() }
+        viewModelScope.launch { videos.refreshStaleSavedVideos() }
     }
 
     fun onTabChange(value: LibraryTab) {

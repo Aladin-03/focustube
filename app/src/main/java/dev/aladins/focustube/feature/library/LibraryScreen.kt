@@ -200,7 +200,7 @@ private fun HistoryList(state: LibraryUiState, actions: LibraryActions, onClear:
                             .semantics { heading() }
                 )
             }
-            items(day.entries, key = { "h-${it.video.id}" }) { entry ->
+            items(day.items, key = { "h-${it.video.id}" }) { entry ->
                 FtSwipeToDismiss(
                     actionLabel = stringResource(R.string.action_remove),
                     onRemove = { actions.onRemoveFromHistory(entry) },

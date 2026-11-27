@@ -1,6 +1,6 @@
 package dev.aladins.focustube.feature.library
 
-import dev.aladins.focustube.domain.model.HistoryDay
+import dev.aladins.focustube.domain.model.DayGroup
 import dev.aladins.focustube.domain.model.HistoryEntry
 import dev.aladins.focustube.domain.model.WatchLaterItem
 import java.time.LocalDate
@@ -23,7 +23,7 @@ data class LibraryUiState(
     /** Newest first. */
     val watchLater: List<WatchLaterItem> = emptyList(),
     /** Newest day first. */
-    val historyDays: List<HistoryDay> = emptyList(),
+    val historyDays: List<DayGroup<HistoryEntry>> = emptyList(),
     val today: LocalDate = LocalDate.MIN,
     val undo: LibraryUndo? = null
 ) {
