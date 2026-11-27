@@ -23,4 +23,45 @@
     <string name="settings_title">Settings</string>
     <string name="placeholder_settings_title">Settings come later</string>
     <string name="placeholder_settings_message">Your OpenAI key, default regions and the YouTube daily limit will live here.</string>
+    <!-- Top bar persona switcher -->
+    <string name="action_switch_persona">Switch persona</string>
+
+    <!-- Persona form (Welcome, Create and Edit) -->
+    <string name="persona_name_label">Name</string>
+    <string name="persona_name_placeholder">e.g. Guitar</string>
+    <string name="persona_goal_label">Goal (optional)</string>
+    <string name="persona_goal_placeholder">e.g. Learn fingerstyle guitar. I\'m a beginner.</string>
+    <string name="persona_error_name_empty">Give this persona a name.</string>
+    <plurals name="persona_error_too_long">
+        <item quantity="one">Use %1$d character or fewer.</item>
+        <item quantity="other">Use %1$d characters or fewer.</item>
+    </plurals>
+    <string name="persona_error_name_taken">You already have a persona with this name.</string>
+    <string name="persona_no_goal">No goal</string>
+
+    <!-- 01 Welcome -->
+    <string name="welcome_title">Who is this feed for?</string>
+    <string name="welcome_info">With a goal, FocusTube picks videos for you and says why each one fits. Without one, you still get search and your channels.</string>
+    <string name="action_create_persona">Create persona</string>
+
+    <!-- 02 Personas -->
+    <string name="personas_title">Personas</string>
+    <string name="personas_new">New persona</string>
+    <string name="personas_archived_link">Archived (%1$d)</string>
+    <string name="personas_edit">Edit %1$s</string>
+
+    <!-- 03 Create / edit persona -->
+    <string name="edit_persona_title_new">New persona</string>
+    <string name="edit_persona_title_edit">Edit persona</string>
+    <string name="action_save">Save</string>
+    <string name="action_archive_persona">Archive persona</string>
+    <string name="archive_persona_note">Archiving keeps its channels, Watch later and history. You can restore it from Archived.</string>
+    <string name="archive_persona_last">You need at least one persona.</string>
+
+    <!-- 04 Archived personas -->
+    <string name="archived_title">Archived personas</string>
+    <string name="action_restore">Restore</string>
+    <string name="action_restore_persona">Restore %1$s</string>
+    <string name="archived_empty_title">No archived personas</string>
+    <string name="archived_empty_message">Personas you archive appear here, with everything they had.</string>
 </resources>

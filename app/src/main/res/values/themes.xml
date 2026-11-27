@@ -2,4 +2,12 @@
     <style name="Theme.FocusTube" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:windowBackground">@color/window_background</item>
     </style>
+
+    <!-- Splash: the FocusTube mark on pine, on paper. Shown until the start screen is known. -->
+    <style name="Theme.FocusTube.Starting" parent="Theme.SplashScreen.IconBackground">
+        <item name="windowSplashScreenBackground">@color/window_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+        <item name="windowSplashScreenIconBackgroundColor">@color/launcher_background</item>
+        <item name="postSplashScreenTheme">@style/Theme.FocusTube</item>
+    </style>
 </resources>
