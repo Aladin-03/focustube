@@ -63,12 +63,7 @@ fun AppScaffold(modifier: Modifier = Modifier, navController: NavHostController 
 
     Row(modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         if (showTabs && useRail) {
-            FtNavRail(
-                modifier =
-                    Modifier.windowInsetsPadding(
-                        WindowInsets.safeDrawing.only(WindowInsetsSides.Start + WindowInsetsSides.Vertical)
-                    )
-            ) {
+            FtNavRail {
                 TopLevelDestination.entries.forEach { tab ->
                     FtNavRailItem(
                         selected = tab == currentTab,
