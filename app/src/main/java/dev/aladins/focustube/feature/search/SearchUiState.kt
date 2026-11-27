@@ -8,7 +8,7 @@ import dev.aladins.focustube.domain.model.Region
 import dev.aladins.focustube.domain.model.SavedSearch
 import dev.aladins.focustube.domain.model.ShortsFilter
 import dev.aladins.focustube.domain.model.Video
-import dev.aladins.focustube.domain.model.WatchProgress
+import dev.aladins.focustube.domain.usecase.LibraryMarks
 
 /** Everything Classic search (12) shows. */
 data class SearchUiState(
@@ -27,10 +27,8 @@ data class SearchUiState(
     val quota: QuotaStatus? = null,
     /** Saved searches with the current regions, most recently used first. */
     val recent: List<RecentSearch> = emptyList(),
-    /** Ids in the persona's Watch later (filled bookmarks). */
-    val savedIds: Set<String> = emptySet(),
-    /** Watch progress by video id (thin progress bars on rows). */
-    val progress: Map<String, WatchProgress> = emptyMap()
+    /** Watch later ids and watch progress (bookmarks and progress bars on rows). */
+    val marks: LibraryMarks = LibraryMarks()
 ) {
     /** Saved results after the All / Videos / Shorts filter (filtering costs nothing). */
     val visibleVideos: List<Video> get() = saved?.let { filter.apply(it.videos) }.orEmpty()

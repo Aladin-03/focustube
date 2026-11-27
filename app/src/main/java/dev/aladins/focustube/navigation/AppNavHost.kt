@@ -10,6 +10,8 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import dev.aladins.focustube.feature.channels.AddChannelRoute
+import dev.aladins.focustube.feature.channels.ChannelRoute
 import dev.aladins.focustube.feature.channels.ChannelsRoute
 import dev.aladins.focustube.feature.library.LibraryRoute
 import dev.aladins.focustube.feature.onboarding.WelcomeRoute
@@ -42,7 +44,13 @@ fun AppNavHost(navController: NavHostController, startDestination: Route, modifi
         exitTransition = { fadeOut(tween(FADE_MILLIS)) }
     ) {
         composable<Route.Picks> { PicksRoute() }
-        composable<Route.Channels> { ChannelsRoute() }
+        composable<Route.Channels> {
+            ChannelsRoute(
+                onOpenVideo = { id -> navController.navigate(Route.Player(id)) { launchSingleTop = true } },
+                onOpenChannel = { id -> navController.navigate(Route.Channel(id)) { launchSingleTop = true } },
+                onAddChannel = dropUnlessResumed { navController.navigate(Route.AddChannel) }
+            )
+        }
         composable<Route.Search> {
             SearchRoute(onOpenVideo = { id -> navController.navigate(Route.Player(id)) { launchSingleTop = true } })
         }
@@ -79,7 +87,22 @@ fun AppNavHost(navController: NavHostController, startDestination: Route, modifi
             )
         }
         composable<Route.Player> {
-            PlayerRoute(onBack = dropUnlessResumed { navController.popBackStack() })
+            PlayerRoute(
+                onBack = dropUnlessResumed { navController.popBackStack() },
+                onOpenChannel = { id -> navController.navigate(Route.Channel(id)) { launchSingleTop = true } }
+            )
+        }
+        composable<Route.AddChannel> {
+            AddChannelRoute(
+                onBack = dropUnlessResumed { navController.popBackStack() },
+                onOpenChannel = { id -> navController.navigate(Route.Channel(id)) { launchSingleTop = true } }
+            )
+        }
+        composable<Route.Channel> {
+            ChannelRoute(
+                onBack = dropUnlessResumed { navController.popBackStack() },
+                onOpenVideo = { id -> navController.navigate(Route.Player(id)) { launchSingleTop = true } }
+            )
         }
         composable<Route.ArchivedPersonas> {
             ArchivedPersonasRoute(onBack = dropUnlessResumed { navController.popBackStack() })

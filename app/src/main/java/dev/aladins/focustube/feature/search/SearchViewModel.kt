@@ -16,12 +16,13 @@ import dev.aladins.focustube.domain.model.SavedSearch
 import dev.aladins.focustube.domain.model.SearchKey
 import dev.aladins.focustube.domain.model.SearchMode
 import dev.aladins.focustube.domain.model.ShortsFilter
-import dev.aladins.focustube.domain.repository.HistoryRepository
 import dev.aladins.focustube.domain.repository.PersonaRepository
 import dev.aladins.focustube.domain.repository.QuotaRepository
 import dev.aladins.focustube.domain.repository.SearchRepository
 import dev.aladins.focustube.domain.repository.SettingsRepository
-import dev.aladins.focustube.domain.repository.WatchLaterRepository
+import dev.aladins.focustube.domain.usecase.LibraryMarks
+import dev.aladins.focustube.domain.usecase.ObserveLibraryMarksUseCase
+import dev.aladins.focustube.domain.usecase.ToggleWatchLaterUseCase
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -49,17 +50,15 @@ class SearchViewModel @Inject constructor(
     private val searches: SearchRepository,
     quota: QuotaRepository,
     settings: SettingsRepository,
-    private val watchLater: WatchLaterRepository,
-    history: HistoryRepository
+    observeMarks: ObserveLibraryMarksUseCase,
+    private val toggleWatchLater: ToggleWatchLaterUseCase
 ) : ViewModel() {
     /** The search field's text. */
     val query = TextFieldState()
 
     /** The persona's Watch later ids and watch progress (bookmarks and progress bars on rows). */
     private val library =
-        personas.observeCurrent().filterNotNull().flatMapLatest { p ->
-            combine(watchLater.observeIds(p.id), history.observeProgress(p.id), ::Pair)
-        }.onStart { emit(emptySet<String>() to emptyMap()) }
+        personas.observeCurrent().filterNotNull().flatMapLatest { observeMarks(it.id) }.onStart { emit(LibraryMarks()) }
 
     private val submitted = MutableStateFlow<SearchKey?>(null)
     private val filter = MutableStateFlow(ShortsFilter.All)
@@ -90,7 +89,7 @@ class SearchViewModel @Inject constructor(
             combine(submitted, saved, filter, ::Triple),
             combine(request, recent.onStart { emit(emptyList()) }, ::Pair),
             library
-        ) { (p, defaults, q), (key, savedSearch, filterValue), (req, rec), (savedIds, progress) ->
+        ) { (p, defaults, q), (key, savedSearch, filterValue), (req, rec), marks ->
             buildState(
                 p,
                 defaults,
@@ -100,7 +99,7 @@ class SearchViewModel @Inject constructor(
                 filterValue,
                 req,
                 rec
-            ).copy(savedIds = savedIds, progress = progress)
+            ).copy(marks = marks)
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS), SearchUiState())
 
     init {
@@ -137,7 +136,7 @@ class SearchViewModel @Inject constructor(
     fun onToggleWatchLater(videoId: String) {
         viewModelScope.launch {
             val p = currentPersona() ?: return@launch
-            if (videoId in uiState.value.savedIds) watchLater.remove(p.id, videoId) else watchLater.add(p.id, videoId)
+            toggleWatchLater(p.id, videoId)
         }
     }
 

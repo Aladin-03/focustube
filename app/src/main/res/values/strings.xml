@@ -14,8 +14,6 @@
     <!-- Placeholder screens (Milestone 1) -->
     <string name="placeholder_picks_title">Picks come later</string>
     <string name="placeholder_picks_message">Videos picked for your goal, each with a reason, will appear here.</string>
-    <string name="placeholder_channels_title">Channels come later</string>
-    <string name="placeholder_channels_message">New uploads from the channels you follow will appear here.</string>
     <string name="settings_title">Settings</string>
     <!-- Top bar persona switcher -->
     <string name="action_switch_persona">Switch persona</string>
@@ -167,4 +165,43 @@
     <string name="action_remove_watch_later">Remove from Watch later</string>
     <string name="watch_later_saved">Saved</string>
     <string name="watch_later">Watch later</string>
+    <!-- 08 My channels -->
+    <string name="action_add_channel">Add a channel</string>
+    <string name="channels_tab_new_uploads">New uploads</string>
+    <string name="channels_tab_channels">Channels (%1$d)</string>
+    <string name="channels_checked_today">Checked today %1$s</string>
+    <string name="channels_checked_yesterday">Checked yesterday %1$s</string>
+    <string name="channels_checked_on">Checked %1$s %2$s</string>
+    <string name="channels_never_checked">Not checked yet</string>
+    <string name="action_check_now">Check now</string>
+    <string name="channels_empty_title">No channels yet</string>
+    <string name="channels_empty_message">Add channels you trust. Their new uploads appear here, newest first.</string>
+    <string name="feed_empty_title">No new uploads</string>
+    <string name="feed_empty_message">Nothing from your channels in the last 30 days.</string>
+    <string name="channel_latest_upload">Latest upload %1$s</string>
+    <string name="channel_no_uploads">No uploads saved yet</string>
+    <plurals name="channel_subscribers"><item quantity="one">%1$s subscriber</item><item quantity="other">%1$s subscribers</item></plurals>
+    <plurals name="channel_videos"><item quantity="one">%1$s video</item><item quantity="other">%1$s videos</item></plurals>
+    <string name="channels_removed">Removed from %1$s</string>
+
+    <!-- 09 Add channel -->
+    <string name="add_channel_title">Add channel</string>
+    <string name="add_channel_placeholder">Channel name, @handle or link</string>
+    <string name="add_channel_hint">A link or @handle is found straight away. Searching by name uses more of YouTube\'s daily limit, so names you searched are remembered for 30 days.</string>
+    <string name="action_add">Add</string>
+    <string name="add_channel_added">Added</string>
+    <string name="add_channel_add_named">Add %1$s</string>
+    <string name="add_channel_sheet_title">Add %1$s to…</string>
+    <string name="add_channel_none_title">No channels found</string>
+    <string name="add_channel_none_message">Check the spelling, or paste the channel\'s link.</string>
+
+    <!-- 10 Channel page -->
+    <string name="channel_in">In: %1$s</string>
+    <string name="channel_in_none">Not in any persona</string>
+    <string name="action_edit">Edit</string>
+    <string name="channel_sheet_title">%1$s is in…</string>
+    <string name="sort_newest">Newest</string>
+    <string name="sort_popular">Popular</string>
+    <string name="action_more_uploads">More uploads</string>
+    <string name="action_channel">Channel</string>
 </resources>

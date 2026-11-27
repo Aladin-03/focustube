@@ -53,9 +53,11 @@ import androidx.core.view.WindowInsetsControllerCompat
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import dev.aladins.focustube.R
 import dev.aladins.focustube.core.designsystem.components.EmptyState
+import dev.aladins.focustube.core.designsystem.components.FtButtonSize
 import dev.aladins.focustube.core.designsystem.components.FtTextButton
 import dev.aladins.focustube.core.designsystem.components.PersonaAvatar
 import dev.aladins.focustube.core.designsystem.components.PrimaryButton
+import dev.aladins.focustube.core.designsystem.components.SecondaryButton
 import dev.aladins.focustube.core.designsystem.icons.FocusTubeIcons
 import dev.aladins.focustube.core.designsystem.theme.FocusTubeTheme
 import dev.aladins.focustube.core.ui.errorText
@@ -68,7 +70,7 @@ import kotlin.time.Clock
  * Player (14) and Short (15): back, "Watching as [persona]", the embedded player (16:9, or 9:16
  * for a Short), title, meta, description and the end mark. When the video ends, FocusTube's own
  * end state covers the player. Landscape (or the full-screen button) shows only the player.
- * Actions: Watch later (thumbs and Channel arrive with Milestones 6 and 5).
+ * Actions: Watch later and Channel (thumbs arrive with Milestone 6).
  *
  * The player view stays in one place in the layout so rotating never restarts the video.
  */
@@ -185,7 +187,14 @@ fun PlayerScreen(state: PlayerUiState, actions: PlayerActions, modifier: Modifie
                         }
                     }
                 }
-                WatchLaterAction(isSaved = state.isInWatchLater, onToggle = actions.onToggleWatchLater)
+                Row(horizontalArrangement = Arrangement.spacedBy(FocusTubeTheme.spacing.sm)) {
+                    WatchLaterAction(isSaved = state.isInWatchLater, onToggle = actions.onToggleWatchLater)
+                    SecondaryButton(
+                        text = stringResource(R.string.action_channel),
+                        onClick = { actions.onOpenChannel(video.channelId) },
+                        size = FtButtonSize.Regular
+                    )
+                }
                 Spacer(Modifier.height(FocusTubeTheme.spacing.md))
                 if (video.description.isNotBlank()) DescriptionCard(video.description)
                 Text(

@@ -32,5 +32,7 @@ data class PlayerActions(
     val onEnded: () -> Unit,
     val onReplay: () -> Unit,
     val onUnplayable: () -> Unit,
-    val onToggleWatchLater: () -> Unit
+    val onToggleWatchLater: () -> Unit,
+    /** Opens the video's channel page. */
+    val onOpenChannel: (String) -> Unit
 )

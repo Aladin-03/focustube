@@ -43,17 +43,13 @@ import dev.aladins.focustube.core.designsystem.components.PersonaAvatar
 import dev.aladins.focustube.core.designsystem.components.RegionChip
 import dev.aladins.focustube.core.designsystem.components.SecondaryButton
 import dev.aladins.focustube.core.designsystem.components.StatusLine
-import dev.aladins.focustube.core.designsystem.components.Tag
-import dev.aladins.focustube.core.designsystem.components.TagStyle
-import dev.aladins.focustube.core.designsystem.components.VideoRow
 import dev.aladins.focustube.core.designsystem.components.regionSummary
 import dev.aladins.focustube.core.designsystem.icons.FocusTubeIcons
 import dev.aladins.focustube.core.designsystem.theme.FocusTubeTheme
 import dev.aladins.focustube.core.ui.RegionSheet
-import dev.aladins.focustube.core.ui.WatchLaterButton
+import dev.aladins.focustube.core.ui.VideoListItem
 import dev.aladins.focustube.core.ui.elapsedText
 import dev.aladins.focustube.core.ui.errorText
-import dev.aladins.focustube.core.ui.videoMetaText
 import dev.aladins.focustube.domain.model.RecentSearch
 import dev.aladins.focustube.domain.model.Region
 import dev.aladins.focustube.domain.model.ShortsFilter
@@ -228,24 +224,13 @@ fun SearchScreen(state: SearchUiState, query: TextFieldState, actions: SearchAct
                             }
                         }
                         items(state.visibleVideos, key = { it.id }) { video ->
-                            VideoRow(
-                                title = video.title,
-                                meta = videoMetaText(video, now),
-                                thumbnailUrl = video.thumbnailUrl,
-                                durationSeconds = video.durationSeconds,
-                                onClick = { actions.onOpenVideo(video.id) },
-                                progress = state.progress[video.id]?.fraction?.takeIf { it > 0f },
-                                trailing = {
-                                    WatchLaterButton(
-                                        isSaved = video.id in state.savedIds,
-                                        onToggle = { actions.onToggleWatchLater(video.id) }
-                                    )
-                                },
-                                tags = {
-                                    if (video.isShort && state.filter == ShortsFilter.All) {
-                                        Tag(text = stringResource(R.string.tag_short), style = TagStyle.Short)
-                                    }
-                                }
+                            VideoListItem(
+                                video = video,
+                                marks = state.marks,
+                                now = now,
+                                onOpen = { actions.onOpenVideo(video.id) },
+                                onToggleWatchLater = { actions.onToggleWatchLater(video.id) },
+                                showShortTag = state.filter == ShortsFilter.All
                             )
                         }
                         if (saved.hasMore) {

@@ -10,7 +10,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 /** Entry point for the player (14, 15). Saves progress when the screen stops (leaving or background). */
 @Composable
-fun PlayerRoute(onBack: () -> Unit, modifier: Modifier = Modifier, viewModel: PlayerViewModel = hiltViewModel()) {
+fun PlayerRoute(
+    onBack: () -> Unit,
+    onOpenChannel: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    viewModel: PlayerViewModel = hiltViewModel()
+) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     LifecycleEventEffect(Lifecycle.Event.ON_STOP) { viewModel.onLeave() }
     PlayerScreen(
@@ -23,7 +28,8 @@ fun PlayerRoute(onBack: () -> Unit, modifier: Modifier = Modifier, viewModel: Pl
                 onEnded = viewModel::onEnded,
                 onReplay = viewModel::onReplay,
                 onUnplayable = viewModel::onUnplayable,
-                onToggleWatchLater = viewModel::onToggleWatchLater
+                onToggleWatchLater = viewModel::onToggleWatchLater,
+                onOpenChannel = onOpenChannel
             ),
         modifier = modifier
     )

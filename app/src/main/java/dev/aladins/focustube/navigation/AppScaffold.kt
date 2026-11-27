@@ -135,7 +135,13 @@ fun AppScaffold(
                         PersonaTopBar(
                             persona = persona,
                             onPersonaClick = { navController.navigate(Route.Personas) { launchSingleTop = true } },
-                            onSettingsClick = { navController.navigate(Route.Settings) { launchSingleTop = true } }
+                            onSettingsClick = { navController.navigate(Route.Settings) { launchSingleTop = true } },
+                            onAddChannel =
+                                if (currentTab == TopLevelDestination.CHANNELS) {
+                                    { navController.navigate(Route.AddChannel) { launchSingleTop = true } }
+                                } else {
+                                    null
+                                }
                         )
                     }
                     AppNavHost(
@@ -176,15 +182,29 @@ fun AppScaffold(
     }
 }
 
-/** Top bar on the tabs: persona avatar, name and chevron (opens Personas), and the Settings gear. */
+/** Top bar on the tabs: persona avatar, name and chevron (opens Personas), + on Channels, the Settings gear. */
 @Composable
-private fun PersonaTopBar(persona: Persona, onPersonaClick: () -> Unit, onSettingsClick: () -> Unit) {
+private fun PersonaTopBar(
+    persona: Persona,
+    onPersonaClick: () -> Unit,
+    onSettingsClick: () -> Unit,
+    onAddChannel: (() -> Unit)? = null
+) {
     FtTopBar(
         title = persona.name,
         leading = { PersonaAvatar(name = persona.name) },
         onTitleClick = onPersonaClick,
         titleClickLabel = stringResource(R.string.action_switch_persona),
         actions = {
+            if (onAddChannel != null) {
+                IconButton(onClick = onAddChannel) {
+                    Icon(
+                        painter = painterResource(FocusTubeIcons.Add),
+                        contentDescription = stringResource(R.string.add_channel_title),
+                        tint = MaterialTheme.colorScheme.onBackground
+                    )
+                }
+            }
             IconButton(onClick = onSettingsClick) {
                 Icon(
                     painter = painterResource(FocusTubeIcons.Settings),
