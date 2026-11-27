@@ -27,7 +27,9 @@ class AppNavigationTest {
 
     private fun tab(@StringRes id: Int) = composeRule.onNodeWithText(text(id))
 
+    /** Waits for pending clicks and navigation to settle first, then presses Back like the system does. */
     private fun pressSystemBack() {
+        composeRule.waitForIdle()
         composeRule.runOnUiThread { composeRule.activity.onBackPressedDispatcher.onBackPressed() }
         composeRule.waitForIdle()
     }
@@ -83,6 +85,7 @@ class AppNavigationTest {
     @Test
     fun systemBackFromAnotherTabReturnsToPicks() {
         tab(R.string.tab_library).performClick()
+        tab(R.string.tab_library).assertIsSelected()
         pressSystemBack()
         tab(R.string.tab_picks).assertIsSelected()
         composeRule.onNodeWithText(text(R.string.placeholder_picks_title)).assertIsDisplayed()
