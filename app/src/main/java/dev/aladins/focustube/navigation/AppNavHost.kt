@@ -46,7 +46,9 @@ fun AppNavHost(navController: NavHostController, startDestination: Route, modifi
         composable<Route.Search> {
             SearchRoute(onOpenVideo = { id -> navController.navigate(Route.Player(id)) { launchSingleTop = true } })
         }
-        composable<Route.Library> { LibraryRoute() }
+        composable<Route.Library> {
+            LibraryRoute(onOpenVideo = { id -> navController.navigate(Route.Player(id)) { launchSingleTop = true } })
+        }
         composable<Route.Settings> {
             SettingsRoute(
                 onBack = dropUnlessResumed { navController.popBackStack() },
