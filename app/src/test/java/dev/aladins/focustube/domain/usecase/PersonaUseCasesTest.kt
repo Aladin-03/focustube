@@ -4,6 +4,7 @@ import dev.aladins.focustube.domain.model.PersonaNameError
 import dev.aladins.focustube.domain.model.PersonaSaveResult
 import dev.aladins.focustube.domain.model.Region
 import dev.aladins.focustube.testing.FakePersonaRepository
+import dev.aladins.focustube.testing.FakeSettingsRepository
 import dev.aladins.focustube.testing.persona
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
@@ -19,7 +20,8 @@ class PersonaUseCasesTest {
     @Test
     fun createTrimsUsesDefaultRegionsAndBecomesCurrent() = runTest {
         val repo = FakePersonaRepository(listOf(persona(1, "General")), currentId = 1)
-        val result = CreatePersonaUseCase(repo, validate)("  Guitar ", "  Learn fingerstyle.  ")
+        val result =
+            CreatePersonaUseCase(repo, validate, FakeSettingsRepository())("  Guitar ", "  Learn fingerstyle.  ")
 
         val id = (result as PersonaSaveResult.Saved).personaId
         val created = repo.observe(id).first()!!
@@ -30,16 +32,30 @@ class PersonaUseCasesTest {
     }
 
     @Test
+    fun createUsesDefaultRegionsFromSettings() = runTest {
+        val repo = FakePersonaRepository()
+        val settings = FakeSettingsRepository(listOf(Region("NL"), Region("DE")))
+        val id = (CreatePersonaUseCase(repo, validate, settings)("Cooking", "") as PersonaSaveResult.Saved).personaId
+        assertEquals(listOf("NL", "DE"), repo.observe(id).first()!!.regions.map { it.code })
+    }
+
+    @Test
     fun createWithBlankGoalHasNoGoal() = runTest {
         val repo = FakePersonaRepository()
-        val id = (CreatePersonaUseCase(repo, validate)("General", "   ") as PersonaSaveResult.Saved).personaId
+        val id = (
+            CreatePersonaUseCase(
+                repo,
+                validate,
+                FakeSettingsRepository()
+            )("General", "   ") as PersonaSaveResult.Saved
+            ).personaId
         assertNull(repo.observe(id).first()!!.goal)
     }
 
     @Test
     fun createRefusesDuplicateActiveName() = runTest {
         val repo = FakePersonaRepository(listOf(persona(1, "Guitar")))
-        val result = CreatePersonaUseCase(repo, validate)("GUITAR", "")
+        val result = CreatePersonaUseCase(repo, validate, FakeSettingsRepository())("GUITAR", "")
         assertEquals(PersonaNameError.Taken, (result as PersonaSaveResult.Invalid).errors.name)
         assertEquals(1, repo.all.size)
     }
@@ -47,7 +63,9 @@ class PersonaUseCasesTest {
     @Test
     fun createAllowsNameOfArchivedPersona() = runTest {
         val repo = FakePersonaRepository(listOf(persona(1, "General"), persona(2, "Guitar", archivedMinute = 9)))
-        assertTrue(CreatePersonaUseCase(repo, validate)("Guitar", "") is PersonaSaveResult.Saved)
+        assertTrue(
+            CreatePersonaUseCase(repo, validate, FakeSettingsRepository())("Guitar", "") is PersonaSaveResult.Saved
+        )
     }
 
     @Test

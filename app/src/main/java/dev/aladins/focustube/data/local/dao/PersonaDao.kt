@@ -24,6 +24,9 @@ interface PersonaDao {
     @Query("UPDATE persona SET name = :name, goal = :goal WHERE id = :id")
     suspend fun updateDetails(id: Long, name: String, goal: String?)
 
+    @Query("UPDATE persona SET regions = :regions WHERE id = :id")
+    suspend fun updateRegions(id: Long, regions: String)
+
     /** Archives (a time) or restores (null). */
     @Query("UPDATE persona SET archived_at = :archivedAt WHERE id = :id")
     suspend fun setArchivedAt(id: Long, archivedAt: Long?)

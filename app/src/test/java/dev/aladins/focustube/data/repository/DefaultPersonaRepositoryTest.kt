@@ -125,6 +125,10 @@ private class FakePersonaDao : PersonaDao {
         rows.update { list -> list.map { if (it.id == id) it.copy(name = name, goal = goal) else it } }
     }
 
+    override suspend fun updateRegions(id: Long, regions: String) {
+        rows.update { list -> list.map { if (it.id == id) it.copy(regions = regions) else it } }
+    }
+
     override suspend fun setArchivedAt(id: Long, archivedAt: Long?) {
         rows.update { list -> list.map { if (it.id == id) it.copy(archivedAt = archivedAt) else it } }
     }

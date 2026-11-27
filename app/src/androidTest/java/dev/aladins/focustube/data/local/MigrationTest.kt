@@ -44,4 +44,35 @@ class MigrationTest {
             context.deleteDatabase(dbName)
         }
     }
+
+    @Test
+    fun version1To2KeepsPersonas_andAddsTheSearchTables() = runTest {
+        helper.createDatabase(dbName, 1).apply {
+            execSQL(
+                "INSERT INTO persona (id, name, goal, regions, created_at, archived_at) VALUES (1, 'Guitar', 'Learn', 'US,GB', 100, NULL)"
+            )
+            close()
+        }
+        helper.runMigrationsAndValidate(dbName, 2, true).apply {
+            query(
+                "SELECT name FROM sqlite_master WHERE type = 'table' AND name IN ('video', 'search_cache', 'search_result', 'quota_log')"
+            ).use {
+                assertEquals(4, it.count)
+            }
+            close()
+        }
+
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val database = Room.databaseBuilder(context, FocusTubeDatabase::class.java, dbName).build()
+        try {
+            val guitar = database.personaDao().observeActive().first().single()
+            assertEquals("Guitar", guitar.name)
+            assertEquals("Learn", guitar.goal)
+            assertEquals("US,GB", guitar.regions)
+            assertEquals(0L, database.quotaDao().unitsBlocking("2026-11-27"))
+        } finally {
+            database.close()
+            context.deleteDatabase(dbName)
+        }
+    }
 }

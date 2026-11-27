@@ -32,4 +32,24 @@ object FocusTubeIcons {
 
     /** FocusTube's mark (the launcher icon's foreground: white, on a 108 dp canvas). */
     @DrawableRes val LogoMark = R.drawable.ic_launcher_foreground
+
+    @DrawableRes val Close = R.drawable.ic_close
+
+    @DrawableRes val Refresh = R.drawable.ic_refresh
+
+    @DrawableRes val Clock = R.drawable.ic_schedule
+
+    @DrawableRes val ChevronRight = R.drawable.ic_chevron_right
+
+    @DrawableRes val Replay = R.drawable.ic_replay
+
+    @DrawableRes val Recent = R.drawable.ic_history
+
+    @DrawableRes val Offline = R.drawable.ic_wifi_off
+
+    @DrawableRes val Fullscreen = R.drawable.ic_fullscreen
+
+    @DrawableRes val FullscreenExit = R.drawable.ic_fullscreen_exit
+
+    @DrawableRes val ChevronUp = R.drawable.ic_expand_less
 }

@@ -5,6 +5,7 @@ import dev.aladins.focustube.domain.model.PersonaNameError
 import dev.aladins.focustube.domain.usecase.CreatePersonaUseCase
 import dev.aladins.focustube.domain.usecase.ValidatePersonaInputUseCase
 import dev.aladins.focustube.testing.FakePersonaRepository
+import dev.aladins.focustube.testing.FakeSettingsRepository
 import dev.aladins.focustube.testing.MainDispatcherRule
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
@@ -21,7 +22,7 @@ class WelcomeViewModelTest {
 
     private val repo = FakePersonaRepository()
     private val validate = ValidatePersonaInputUseCase()
-    private val viewModel = WelcomeViewModel(validate, CreatePersonaUseCase(repo, validate))
+    private val viewModel = WelcomeViewModel(validate, CreatePersonaUseCase(repo, validate, FakeSettingsRepository()))
 
     @Test
     fun createIsDisabledUntilANameIsTyped_andEmptyErrorIsNotShownUpFront() {

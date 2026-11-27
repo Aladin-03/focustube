@@ -48,6 +48,10 @@ class FakePersonaRepository(initial: List<Persona> = emptyList(), currentId: Lon
         personas.update { list -> list.map { if (it.id == id) it.copy(name = name, goal = goal) else it } }
     }
 
+    override suspend fun setRegions(id: Long, regions: List<Region>) {
+        personas.update { list -> list.map { if (it.id == id) it.copy(regions = regions) else it } }
+    }
+
     override suspend fun archive(id: Long) {
         tick += 1.minutes
         personas.update { list -> list.map { if (it.id == id) it.copy(archivedAt = tick) else it } }

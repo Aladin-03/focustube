@@ -1,6 +1,5 @@
 package dev.aladins.focustube.navigation
 
-import androidx.activity.ComponentActivity
 import androidx.annotation.StringRes
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotSelected
@@ -9,9 +8,11 @@ import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.test.ext.junit.runners.AndroidJUnit4
+import dagger.hilt.android.testing.HiltAndroidRule
+import dagger.hilt.android.testing.HiltAndroidTest
 import dev.aladins.focustube.R
 import dev.aladins.focustube.core.designsystem.theme.FocusTubeTheme
+import dev.aladins.focustube.debug.HiltTestActivity
 import dev.aladins.focustube.domain.model.Persona
 import dev.aladins.focustube.domain.model.Region
 import kotlin.time.Instant
@@ -19,16 +20,19 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestName
-import org.junit.runner.RunWith
 
 /**
  * App shell navigation for a persona: the four tabs switch, the gear opens Settings, Back returns
- * to the persona's start tab. (Persona screens need Hilt and are covered by FirstLaunchTest.)
+ * to the persona's start tab. Runs with Hilt (Search and Settings have ViewModels) and a fake
+ * YouTube API; persona screens are covered by FirstLaunchTest.
  */
-@RunWith(AndroidJUnit4::class)
+@HiltAndroidTest
 class AppNavigationTest {
-    @get:Rule
-    val composeRule = createAndroidComposeRule<ComponentActivity>()
+    @get:Rule(order = 0)
+    val hiltRule = HiltAndroidRule(this)
+
+    @get:Rule(order = 1)
+    val composeRule = createAndroidComposeRule<HiltTestActivity>()
 
     private fun text(@StringRes id: Int) = composeRule.activity.getString(id)
 
@@ -83,7 +87,7 @@ class AppNavigationTest {
     fun fourTabsSwitch() {
         listOf(
             R.string.tab_channels to R.string.placeholder_channels_title,
-            R.string.tab_search to R.string.placeholder_search_title,
+            R.string.tab_search to R.string.search_idle_message,
             R.string.tab_library to R.string.placeholder_library_title,
             R.string.tab_picks to R.string.placeholder_picks_title
         ).forEach { (tabLabel, title) ->
@@ -99,18 +103,18 @@ class AppNavigationTest {
         tab(R.string.tab_search).performClick()
         composeRule.onNodeWithContentDescription(text(R.string.action_settings)).performClick()
 
-        composeRule.onNodeWithText(text(R.string.placeholder_settings_title)).assertIsDisplayed()
+        composeRule.onNodeWithText(text(R.string.settings_default_regions)).assertIsDisplayed()
         tab(R.string.tab_picks).assertDoesNotExist()
 
         composeRule.onNodeWithContentDescription(text(R.string.action_back)).performClick()
         tab(R.string.tab_search).assertIsSelected()
-        composeRule.onNodeWithText(text(R.string.placeholder_search_title)).assertIsDisplayed()
+        composeRule.onNodeWithText(text(R.string.search_idle_message)).assertIsDisplayed()
     }
 
     @Test
     fun systemBackFromSettingsReturnsToTab() {
         composeRule.onNodeWithContentDescription(text(R.string.action_settings)).performClick()
-        composeRule.onNodeWithText(text(R.string.placeholder_settings_title)).assertIsDisplayed()
+        composeRule.onNodeWithText(text(R.string.settings_default_regions)).assertIsDisplayed()
 
         pressSystemBack()
         tab(R.string.tab_picks).assertIsSelected()
