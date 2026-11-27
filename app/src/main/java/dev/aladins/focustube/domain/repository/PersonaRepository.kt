@@ -27,6 +27,9 @@ interface PersonaRepository {
     /** Changes name and goal. Inputs must already be validated. */
     suspend fun update(id: Long, name: String, goal: String?)
 
+    /** Replaces the persona's regions (at least one, in the user's order). */
+    suspend fun setRegions(id: Long, regions: List<Region>)
+
     suspend fun archive(id: Long)
 
     suspend fun restore(id: Long)

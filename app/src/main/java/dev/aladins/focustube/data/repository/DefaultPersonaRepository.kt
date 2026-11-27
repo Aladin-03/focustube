@@ -49,6 +49,11 @@ class DefaultPersonaRepository @Inject constructor(
 
     override suspend fun update(id: Long, name: String, goal: String?) = dao.updateDetails(id, name, goal)
 
+    override suspend fun setRegions(id: Long, regions: List<Region>) {
+        require(regions.isNotEmpty()) { "A persona needs at least one region" }
+        dao.updateRegions(id, regions.toStoredRegions())
+    }
+
     override suspend fun archive(id: Long) = dao.setArchivedAt(id, clock.now().toEpochMilliseconds())
 
     override suspend fun restore(id: Long) = dao.setArchivedAt(id, null)

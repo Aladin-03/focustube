@@ -56,7 +56,8 @@ Aladin's tablet. No Google sign-in. Nothing syncs back to YouTube.
 - **AI search:** results ranked against the persona's goal, each with reason and level.
   May include videos from the persona's own channels, tagged "Your channel".
 - **Classic search:** plain YouTube results. Works without an OpenAI key and in every persona.
-  Has a Videos / Shorts filter.
+  Has an All · Videos · Shorts filter (default All). A Short is 3 minutes or less and vertical.
+  (Decided 27 Nov 2026.)
 - Shorts appear mixed in results with a "Short" label.
 - Same search (same persona, query, mode and regions) reuses saved results until Refresh.
 

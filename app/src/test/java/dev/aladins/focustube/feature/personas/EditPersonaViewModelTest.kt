@@ -8,6 +8,7 @@ import dev.aladins.focustube.domain.usecase.UpdatePersonaUseCase
 import dev.aladins.focustube.domain.usecase.ValidatePersonaInputUseCase
 import dev.aladins.focustube.navigation.Route
 import dev.aladins.focustube.testing.FakePersonaRepository
+import dev.aladins.focustube.testing.FakeSettingsRepository
 import dev.aladins.focustube.testing.MainDispatcherRule
 import dev.aladins.focustube.testing.persona
 import kotlinx.coroutines.flow.first
@@ -33,7 +34,7 @@ class EditPersonaViewModelTest {
         ),
         repository = repo,
         validate = validate,
-        createPersona = CreatePersonaUseCase(repo, validate),
+        createPersona = CreatePersonaUseCase(repo, validate, FakeSettingsRepository()),
         updatePersona = UpdatePersonaUseCase(repo, validate),
         archivePersona = ArchivePersonaUseCase(repo)
     )

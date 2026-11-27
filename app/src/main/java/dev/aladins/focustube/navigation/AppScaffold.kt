@@ -85,6 +85,8 @@ fun AppScaffold(
     // Before the first destination is known, follow the start destination so bars don't flicker.
     val showTabs =
         persona != null && (currentTab != null || (currentDestination == null && startDestination != Route.Welcome))
+    // The player handles its own insets and goes edge to edge (full screen in landscape).
+    val edgeToEdge = currentDestination?.hasRoute<Route.Player>() == true
     val useRail =
         currentWindowAdaptiveInfoV2().windowSizeClass
             .isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)
@@ -120,7 +122,15 @@ fun AppScaffold(
                 modifier = Modifier.weight(1f).fillMaxWidth(),
                 contentAlignment = Alignment.TopCenter
             ) {
-                Column(Modifier.widthIn(max = FocusTubeTheme.spacing.contentMaxWidth).fillMaxSize()) {
+                Column(
+                    if (edgeToEdge) {
+                        Modifier.fillMaxSize()
+                    } else {
+                        Modifier.widthIn(
+                            max = FocusTubeTheme.spacing.contentMaxWidth
+                        ).fillMaxSize()
+                    }
+                ) {
                     if (showTabs) {
                         PersonaTopBar(
                             persona = persona,
@@ -132,17 +142,21 @@ fun AppScaffold(
                         navController = navController,
                         startDestination = startDestination,
                         modifier =
-                            Modifier
-                                .weight(1f)
-                                .windowInsetsPadding(
-                                    WindowInsets.safeDrawing.only(
-                                        if (showTabs && !useRail) {
-                                            WindowInsetsSides.Horizontal
-                                        } else {
-                                            WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom
-                                        }
+                            if (edgeToEdge) {
+                                Modifier.weight(1f)
+                            } else {
+                                Modifier
+                                    .weight(1f)
+                                    .windowInsetsPadding(
+                                        WindowInsets.safeDrawing.only(
+                                            if (showTabs && !useRail) {
+                                                WindowInsetsSides.Horizontal
+                                            } else {
+                                                WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom
+                                            }
+                                        )
                                     )
-                                )
+                            }
                     )
                 }
             }

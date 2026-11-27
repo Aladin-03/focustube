@@ -17,6 +17,7 @@ import dev.aladins.focustube.feature.personas.ArchivedPersonasRoute
 import dev.aladins.focustube.feature.personas.EditPersonaRoute
 import dev.aladins.focustube.feature.personas.PersonasRoute
 import dev.aladins.focustube.feature.picks.PicksRoute
+import dev.aladins.focustube.feature.player.PlayerRoute
 import dev.aladins.focustube.feature.search.SearchRoute
 import dev.aladins.focustube.feature.settings.SettingsRoute
 
@@ -42,10 +43,15 @@ fun AppNavHost(navController: NavHostController, startDestination: Route, modifi
     ) {
         composable<Route.Picks> { PicksRoute() }
         composable<Route.Channels> { ChannelsRoute() }
-        composable<Route.Search> { SearchRoute() }
+        composable<Route.Search> {
+            SearchRoute(onOpenVideo = { id -> navController.navigate(Route.Player(id)) { launchSingleTop = true } })
+        }
         composable<Route.Library> { LibraryRoute() }
         composable<Route.Settings> {
-            SettingsRoute(onBack = dropUnlessResumed { navController.popBackStack() })
+            SettingsRoute(
+                onBack = dropUnlessResumed { navController.popBackStack() },
+                onOpenArchived = dropUnlessResumed { navController.navigate(Route.ArchivedPersonas) }
+            )
         }
         composable<Route.Welcome> { WelcomeRoute() }
         composable<Route.Personas> {
@@ -69,6 +75,9 @@ fun AppNavHost(navController: NavHostController, startDestination: Route, modifi
                 onBack = dropUnlessResumed { navController.popBackStack() },
                 onDone = { navController.popBackStack<Route.EditPersona>(inclusive = true) }
             )
+        }
+        composable<Route.Player> {
+            PlayerRoute(onBack = dropUnlessResumed { navController.popBackStack() })
         }
         composable<Route.ArchivedPersonas> {
             ArchivedPersonasRoute(onBack = dropUnlessResumed { navController.popBackStack() })

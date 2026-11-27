@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <!-- allowBackup is off: Backup and restore is a later, file-based feature (REQUIREMENTS.md). -->
     <application
         android:name=".FocusTubeApp"
@@ -14,6 +16,7 @@
         android:theme="@style/Theme.FocusTube">
         <activity
             android:name=".MainActivity"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden"
             android:theme="@style/Theme.FocusTube.Starting"
             android:exported="true">
             <intent-filter>

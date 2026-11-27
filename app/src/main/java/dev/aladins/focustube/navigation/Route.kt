@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
  * Every navigation destination in the app, as type-safe routes.
  *
  * Named `Route.X` so they never clash with the `XRoute` composables inside each feature.
- * Later milestones add Player(videoId), Channel(channelId) and AddChannel here.
+ * Later milestones add Channel(channelId) and AddChannel here.
  */
 sealed interface Route {
     /** Tab: AI picks for the current persona. */
@@ -47,6 +47,15 @@ sealed interface Route {
         companion object {
             /** SavedStateHandle key of [personaId] (the property name). */
             const val PERSONA_ID_KEY = "personaId"
+        }
+    }
+
+    /** 14 / 15: the player for one video (a Short gets the tall layout). */
+    @Serializable
+    data class Player(val videoId: String) : Route {
+        companion object {
+            /** SavedStateHandle key of [videoId] (the property name). */
+            const val VIDEO_ID_KEY = "videoId"
         }
     }
 

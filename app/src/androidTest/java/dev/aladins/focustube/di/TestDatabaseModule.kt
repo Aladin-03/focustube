@@ -8,6 +8,9 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import dagger.hilt.testing.TestInstallIn
 import dev.aladins.focustube.data.local.dao.PersonaDao
+import dev.aladins.focustube.data.local.dao.QuotaDao
+import dev.aladins.focustube.data.local.dao.SearchDao
+import dev.aladins.focustube.data.local.dao.VideoDao
 import dev.aladins.focustube.data.local.database.FocusTubeDatabase
 import javax.inject.Singleton
 
@@ -22,4 +25,13 @@ object TestDatabaseModule {
 
     @Provides
     fun providePersonaDao(database: FocusTubeDatabase): PersonaDao = database.personaDao()
+
+    @Provides
+    fun provideVideoDao(database: FocusTubeDatabase): VideoDao = database.videoDao()
+
+    @Provides
+    fun provideSearchDao(database: FocusTubeDatabase): SearchDao = database.searchDao()
+
+    @Provides
+    fun provideQuotaDao(database: FocusTubeDatabase): QuotaDao = database.quotaDao()
 }
