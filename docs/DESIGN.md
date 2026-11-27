@@ -99,7 +99,7 @@ The approved wireframes number the screens; keep these names in code.
 | 09 | Add channel | Search field, channel rows with Add / Added, sheet "Add [channel] to..." with persona checkboxes. |
 | 10 | Channel page | Avatar, name, subscribers, video count, "In: Guitar, General · Edit", sort chips Newest / Popular, uploads. Leave space for a third chip "Best for your goal" (later). |
 | 11 | AI search | Rounded search field with persona avatar, AI / Classic toggle, region chip, status line, VideoRows with LevelMeter, tags and reason box. |
-| 12 | Classic search | Same layout, plain results, Videos / Shorts filter. |
+| 12 | Classic search | Same layout, plain results. Filter chips All · Videos · Shorts (default All); filtering uses saved results and costs nothing. Shorts carry a "Short" tag in All. |
 | 13 | Region filter sheet | Country checkboxes, + Add a country, Reset to defaults, Apply. |
 | 14 | Player | Back, "Watching as [persona]" chip, 16:9 player, title, channel row + Channel button, actions (Helpful, thumbs down, Watch later toggle), description card, end mark "That's it. Nothing plays next." Leave room for a Summarize action (later). |
 | 15 | Player, Short | Same screen with a tall video. |

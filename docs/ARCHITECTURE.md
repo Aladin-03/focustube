@@ -59,11 +59,11 @@ app/src/main/java/dev/aladins/focustube/
 │   │   ├── dao/                 # One DAO per table group
 │   │   └── entity/              # Room entities
 │   ├── remote/
-│   │   ├── youtube/             # YouTubeApi (Retrofit), dto/, YouTubeDataSource
+│   │   ├── youtube/             # YouTubeApi (Retrofit), dto/, YouTubeDataSource, YouTubeKeyInterceptor
 │   │   ├── openai/              # OpenAiApi (Retrofit), dto/, OpenAiDataSource, prompts/
-│   │   └── quota/               # QuotaTracker + OkHttp interceptor counting YouTube units
-│   ├── settings/                # AppPreferences (plain DataStore: current persona);
-│   │                            #   SettingsStore (encrypted DataStore): OpenAI key, default regions
+│   │   └── quota/               # QuotaTracker + QuotaInterceptor (counts YouTube units)
+│   ├── settings/                # AppPreferences (plain DataStore: current persona, default
+│   │                            #   regions); SettingsStore (encrypted DataStore): OpenAI key
 │   └── mapper/                  # Entity <-> domain, DTO <-> domain. Each mapping written once.
 │
 ├── di/                          # Hilt modules only, each added with the first thing it provides
@@ -109,8 +109,17 @@ feature/picks/
 ```
 
 Tests mirror the same packages under `app/src/test/` (unit) and `app/src/androidTest/` (UI, Room).
-Unit-test fakes live in `app/src/test/.../testing/`. Instrumented tests run with
-`HiltTestRunner`; `androidTest/.../di/` swaps in an in-memory database and a fresh DataStore.
+Unit-test fakes live in `app/src/test/.../testing/`. Fakes needed by both unit and on-device
+tests (e.g. `FakeYouTubeApi`) live once in `app/src/sharedTest/java/.../testing/`. Instrumented
+tests run with `HiltTestRunner`; `androidTest/.../di/` swaps in an in-memory database, a fresh
+DataStore and the fake YouTube API, so UI tests never spend real units. Composables that need Hilt
+ViewModels are tested inside `HiltTestActivity` (debug build only).
+
+Debug-only code lives in `app/src/debug/`: the key-redacting HTTP logger, `HiltTestActivity`, and
+`DebugQuotaReceiver`, which simulates the daily limit from adb (only callers with the DUMP
+permission, i.e. the adb shell):
+`adb shell am broadcast -n dev.aladins.focustube/.debug.DebugQuotaReceiver --es state exhausted`
+(or `--es state reset [--el units N]`).
 
 ### Navigation and the current persona
 
@@ -178,18 +187,18 @@ Add each library to the version catalog in the milestone that first uses it.
 | Table | Holds | Key fields |
 | --- | --- | --- |
 | persona | Each persona (since v1) | id, name, goal?, regions ("US,GB,DE"), created_at, archived_at? |
+| video | Every video shown anywhere (since v2) | youtube_id, title, channel_id, channel_title, duration_sec, published_at, view_count?, is_short, description, thumbnail_url?, fetched_at |
+| search_cache | A saved search (since v2) | id, persona_id, query, query_normalized, mode (CLASSIC/AI), regions (sorted), region_order, pages_loaded, page_tokens (JSON per region), created_at, last_used_at. Unique: persona + query_normalized + mode + regions |
+| search_result | A video in a saved search (since v2) | cache_id (deleted with its search), video_id, rank, reason?, level? |
+| quota_log | YouTube units this phone spent (since v2) | pacific_date, units_used |
 | channel | Every channel the app has seen | youtubeId, title, avatarUrl, subscriberCount, uploadsPlaylistId, lastCheckedAt, fetchedAt |
 | persona_channel | Persona follows channel | personaId, channelId, addedAt |
-| video | Every video shown anywhere | youtubeId, title, channelId, durationSec, publishedAt, viewCount, isShort, description, thumbnailUrl, fetchedAt |
 | pick_batch | A set of 12 picks | id, personaId, createdAt, regions |
 | pick | A video in a batch | batchId, videoId, rank, reason, level, isNewVoice, removed |
-| search_cache | A saved search | id, personaId, query, mode (AI/CLASSIC), regions, shortsFilter, createdAt |
-| search_result | A video in a saved search | cacheId, videoId, rank, reason?, level? |
 | feedback | Thumbs | personaId, videoId, channelId, type (UP/DOWN), at |
 | hidden_channel | Never show this channel | personaId, channelId, at |
 | watch_later | Library tab | personaId, videoId, addedAt |
 | history | Library tab | personaId, videoId, watchedAt, progressSec, isWatched |
-| quota_log | YouTube units spent | pacificDate, unitsUsed |
 
 Tables are created in the milestone that first uses them (v1 has only `persona`); the table above
 is the plan. Times are stored as epoch milliseconds; mappers convert to `kotlin.time.Instant`.
@@ -221,16 +230,28 @@ An app update must never wipe a persona, Watch later or History.
 Daily limit: 10,000 units, resets at midnight Pacific. Costs (approximate, from YouTube's docs):
 `search.list` = 100, `videos.list` / `channels.list` / `playlistItems.list` = 1 per call (up to 50 ids).
 
-- Every YouTube request goes through `QuotaTracker`, which adds the call's cost to today's
-  `quota_log` row (Pacific date).
+- Every YouTube request goes through `QuotaInterceptor`: it refuses a request that would pass
+  today's limit (never sent), otherwise `QuotaTracker` adds the call's cost to today's `quota_log`
+  row (Pacific date, `America/Los_Angeles`) once a response arrives. The count is this phone's only;
+  the limit is shared by everyone using the key, so YouTube's 403 is the final word.
+- `YouTubeKeyInterceptor` adds the key only to `www.googleapis.com` requests. Thumbnails use a
+  separate OkHttp client with no key. Errors never include URLs; the debug HTTP log redacts `key`.
+- Classic search: `search.list` (`part=id`, `type=video`, `videoEmbeddable=true`,
+  `safeSearch=moderate`, `maxResults=50`, one `regionCode`) then one `videos.list` for details:
+  101 units per page of 50. Page 1 uses the persona's first region; "More results" takes the other
+  regions in turn (their page 1), then their next pages. The Videos / Shorts filter works on saved
+  results (0 units). A saved search is reused until Refresh or until it is 30 days old.
 - A 403 `quotaExceeded` response, or the tracked total reaching the limit, returns
   `AppError.QuotaExceeded`. Screens then show `LimitBanner`, disable Refresh and new searches,
   and keep showing saved data.
 - Batch video detail calls (50 ids per `videos.list`).
 - New uploads: use each channel's uploads playlist (`playlistItems.list`, 1 unit), not search.
 - Add channel uses `search.list` with `type=channel` (100 units); cache results.
-- Shorts detection: duration of 60 seconds or less (refine later if needed).
-- Data older than 30 days is refetched or dropped.
+- Shorts detection: 3 minutes or less **and** vertical. `videos.list` is called with
+  `maxHeight`, so YouTube reports the embed size; taller than wide = vertical. Live or upcoming
+  videos (duration 0) are never Shorts.
+- Data older than 30 days is refetched or dropped: on app start, saved searches older than 30 days
+  and video rows no saved search uses are deleted (`SearchRepository.removeStale`).
 
 ## OpenAI
 
@@ -264,10 +285,19 @@ from the persona's own channels (tag "Your channel"), and returns the top 15.
 
 ## Player
 
-- Use android-youtube-player with controls on, `rel=0`, no autoplay of other videos.
+- Use android-youtube-player (YouTube's official IFrame player in a WebView) with controls on,
+  `rel=0`, `iv_load_policy=3`, nothing queued after the video. The tapped video starts at once.
+- YouTube's own fullscreen button is off: rotating to landscape, or FocusTube's full-screen
+  button, shows only the player with system bars hidden. `MainActivity` handles rotation itself
+  (`configChanges`), so the WebView isn't recreated and playback continues.
+- If the screen is recreated anyway (theme change), playback resumes where it was; an ended video
+  is only loaded, never played again under the end state.
+- Known limitation: while paused, YouTube's embed can show a "More videos" shelf. It can't be
+  turned off in the embedded player.
 - On end of video, stop and show FocusTube's own end state over the player so YouTube's end-screen
   suggestions are never shown.
-- Report progress to `MarkWatchedUseCase` (watched past ~50%, or the end for a Short).
+- Report progress to `MarkWatchedUseCase` (watched past ~50%, or the end for a Short). Until
+  Milestone 4, progress is kept in memory only.
 
 ## Secrets and build config
 
