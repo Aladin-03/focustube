@@ -71,7 +71,8 @@ app/src/main/java/dev/aladins/focustube/
 │   ├── NetworkModule.kt
 │   ├── RepositoryModule.kt      # Binds interfaces to implementations
 │   ├── SettingsModule.kt        # DataStore(s)
-│   ├── TimeModule.kt            # kotlin.time.Clock (Clock.System; tests use a fixed clock)
+│   ├── TimeModule.kt            # kotlin.time.Clock and ZoneId (tests use fixed ones)
+│   ├── CoroutinesModule.kt      # @ApplicationScope: writes that must finish after a screen closes
 │   └── DispatchersModule.kt
 │
 ├── work/                        # Background jobs
@@ -197,8 +198,8 @@ Add each library to the version catalog in the milestone that first uses it.
 | pick | A video in a batch | batchId, videoId, rank, reason, level, isNewVoice, removed |
 | feedback | Thumbs | personaId, videoId, channelId, type (UP/DOWN), at |
 | hidden_channel | Never show this channel | personaId, channelId, at |
-| watch_later | Library tab | personaId, videoId, addedAt |
-| history | Library tab | personaId, videoId, watchedAt, progressSec, isWatched |
+| watch_later | Watch later (since v3) | persona_id + video_id (key), added_at. Saving again keeps the date |
+| history | History (since v3) | persona_id + video_id (key, one row per video), last_watched_at, position_sec, duration_sec, is_watched (never goes back), watched_at? |
 
 Tables are created in the milestone that first uses them (v1 has only `persona`); the table above
 is the plan. Times are stored as epoch milliseconds; mappers convert to `kotlin.time.Instant`.
@@ -251,7 +252,10 @@ Daily limit: 10,000 units, resets at midnight Pacific. Costs (approximate, from 
   `maxHeight`, so YouTube reports the embed size; taller than wide = vertical. Live or upcoming
   videos (duration 0) are never Shorts.
 - Data older than 30 days is refetched or dropped: on app start, saved searches older than 30 days
-  and video rows no saved search uses are deleted (`SearchRepository.removeStale`).
+  and video rows no saved search uses are deleted (`SearchRepository.removeStale`). Videos in any
+  persona's Watch later or History (archived personas included) are never deleted; instead their
+  details are refreshed when older than 30 days, when the Library opens, at most once a day
+  (`VideoRepository.refreshStaleLibraryVideos`, 1 unit per 50 videos).
 
 ## OpenAI
 
@@ -296,8 +300,17 @@ from the persona's own channels (tag "Your channel"), and returns the top 15.
   turned off in the embedded player.
 - On end of video, stop and show FocusTube's own end state over the player so YouTube's end-screen
   suggestions are never shown.
-- Report progress to `MarkWatchedUseCase` (watched past ~50%, or the end for a Short). Until
-  Milestone 4, progress is kept in memory only.
+- Progress goes to History through `MarkWatchedUseCase`: watched at ≥ 50% of the length, or at
+  the end (a Short only at the end); once watched, always watched. A video enters History after
+  ~10 s of real play (seeking doesn't count). Saves happen every 15 s while playing, on pause, the
+  moment it crosses half, at the end and when the screen stops, so not every second. Saves run in
+  `@ApplicationScope` so leaving the player never loses one.
+- A video not yet watched resumes at its saved position (unless within its last 10 s); a watched
+  one starts from 0:00.
+- `HistoryRepository.observeWatchedIds(personaId)` is what picks and AI search use to leave out
+  watched videos (Milestones 6, 7). Classic search keeps them, with a thin progress bar.
+- Swipe rows use `FtSwipeToDismiss` with non-saveable state, so an item brought back by Undo
+  doesn't come back already dismissed.
 
 ## Secrets and build config
 
